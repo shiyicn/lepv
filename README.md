@@ -1,1 +1,1 @@
-# lepv
+# Linear equalities program verification

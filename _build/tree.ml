@@ -9,7 +9,6 @@ struct
 
   type var = V.t
   module VarHashtbl = Hashtbl.Make(V)
-
 end
 
 module SyntaxTree = 
@@ -19,7 +18,7 @@ struct
   (*
   Var : variables s "string"; As : assignment; 
   Op: operator; Pun : Punctuation : ";"; 
-  Com : comparator : ">=, >, <=, <"
+  Com : comparator : ">=, >, <=, <" ...
   *)
   type syntax =
     | Var| As| Op| Pun| Com| Int
@@ -87,7 +86,7 @@ struct
         else
           (if flag = Blank then () else (Queue.add (flag, sub) q);
            f en (en+1) len s q)
-  
+
   (*fold over every line of program txt*)
   let iofold (f : int -> int -> int -> string -> 'b -> 'b) (fname : string) (x : 'b) =
     let stream = open_in fname in
@@ -146,7 +145,7 @@ struct
         | (Var, s) -> ignore(aux q); let i = VarHashtbl.find htl s in ar.(i) <- 1; i
         | (Curr, _)| (Pun, _)| (Com, _) -> 0
         | (_, s) -> raise (ExpectSyntax ("Invalid syntax : "^s^" in expr construction.\n"))
-      in 
+      in
 
       ignore(aux q);(*print basic expression info *)(*FT.print_array (FT.convert ar); *)
       (FT.convert ar)::l
