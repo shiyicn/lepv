@@ -2,7 +2,7 @@
 # Target: test.ml.depends, tags: { extension:ml, file:test.ml, ocaml, ocamldep, quiet }
 ocamlfind ocamldep -modules test.ml > test.ml.depends # cached
 # Target: tree.ml.depends, tags: { extension:ml, file:tree.ml, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -modules tree.ml > tree.ml.depends # cached
+ocamlfind ocamldep -modules tree.ml > tree.ml.depends
 # Target: cs.ml.depends, tags: { extension:ml, file:cs.ml, ocaml, ocamldep, quiet }
 ocamlfind ocamldep -modules cs.ml > cs.ml.depends # cached
 # Target: cs.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:cs.cmo, file:cs.ml, implem, ocaml, quiet }
@@ -12,7 +12,7 @@ ocamlfind ocamldep -modules frac.ml > frac.ml.depends # cached
 # Target: frac.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:frac.cmo, file:frac.ml, implem, ocaml, quiet }
 ocamlfind ocamlc -c -o frac.cmo frac.ml # cached
 # Target: tree.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:tree.cmo, file:tree.ml, implem, ocaml, quiet }
-ocamlfind ocamlc -c -o tree.cmo tree.ml # cached
+ocamlfind ocamlc -c -o tree.cmo tree.ml
 # Target: test.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:test.cmo, file:test.ml, implem, ocaml, quiet }
 ocamlfind ocamlc -c -o test.cmo test.ml # cached
 # Target: cs.cmx, tags: { compile, extension:cmx, extension:ml, file:cs.cmx, file:cs.ml, implem, native, ocaml, quiet }
@@ -20,9 +20,9 @@ ocamlfind ocamlopt -c -o cs.cmx cs.ml # cached
 # Target: frac.cmx, tags: { compile, extension:cmx, extension:ml, file:frac.cmx, file:frac.ml, implem, native, ocaml, quiet }
 ocamlfind ocamlopt -c -o frac.cmx frac.ml # cached
 # Target: tree.cmx, tags: { compile, extension:cmx, extension:ml, file:tree.cmx, file:tree.ml, implem, native, ocaml, quiet }
-ocamlfind ocamlopt -c -o tree.cmx tree.ml # cached
+ocamlfind ocamlopt -c -o tree.cmx tree.ml
 # Target: test.cmx, tags: { compile, extension:cmx, extension:ml, file:test.cmx, file:test.ml, implem, native, ocaml, quiet }
 ocamlfind ocamlopt -c -o test.cmx test.ml # cached
 # Target: test.native, tags: { dont_link_with, extension:native, file:test.native, link, native, ocaml, program, quiet }
-ocamlfind ocamlopt -linkpkg cs.cmx frac.cmx tree.cmx test.cmx -o test.native # cached
+ocamlfind ocamlopt -linkpkg cs.cmx frac.cmx tree.cmx test.cmx -o test.native
 # Compilation successful.

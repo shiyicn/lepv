@@ -147,7 +147,7 @@ struct
         | (_, s) -> raise (ExpectSyntax ("Invalid syntax : "^s^" in expr construction.\n"))
       in
 
-      ignore(aux q);(*print basic expression info *)(*FT.print_array (FT.convert ar); *)
+      ignore(aux q);(*print basic expression info *)FT.print_array (FT.convert ar);
       (FT.convert ar)::l
   
   (*build invariant
