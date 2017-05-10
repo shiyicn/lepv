@@ -1,11 +1,22 @@
 module FT = Frac
 
+module StringHash : Cs.Hashable with type t = string = 
+struct
+  type t = string
+  let hash s = 
+    let rec aux s i h len=
+      if i = len then h
+      else aux s (i+1) (h+int_of_char s.[i]) len
+    in aux s 0 0 (String.length s)
+  let equal s1 s2 = s1=s2
+end
+
 module Variables = 
 struct
   (* the type of Variables *)
   type t
 
-  module V = Cs.StringHash
+  module V = StringHash
 
   type var = V.t
   module VarHashtbl = Hashtbl.Make(V)
@@ -38,7 +49,7 @@ struct
 
   type prog = string VarHashtbl.t * int * tree
 
-  type token = string * syntax
+  type token = syntax * string
 
   exception IllegalCharacter
 
@@ -66,7 +77,8 @@ struct
     | "if"| "else" -> Cond
     | "while" -> Loop
     | _ -> Var
-
+  
+  (* tokenizer function *)
   let rec f st en len s q =
     let flag = classer s.[st] in
     let sub = String.sub s st (en - st) in

@@ -1,5 +1,10 @@
 type t = int * int
 
+type sign = 
+    | Null| Pos| Neg
+
+let zero = (0, 1)
+
 (* convert an integer array to fraction array *)
 let convert (a : int array) = 
     Array.map (fun a -> (a, 1)) a
@@ -27,26 +32,37 @@ let sim (f:t) =
 let sub (f1:t) (f2:t) = 
     match (f1, f2) with
     | ((n1, d1),(n2, d2)) -> 
-    let () = assert (d1 > 0 && d2 > 0) in
+    assert (d1 > 0 && d2 > 0);
     sim ((n1*d2 - n2*d1), (d1*d2))
 
 (*f1 f2 -> f1 + f2*)
 let add (f1:t) (f2:t) = 
     match (f1, f2) with
     | ((n1, d1),(n2, d2)) -> 
-    let () = assert (d1 > 0 && d2 > 0) in
+    assert (d1 > 0 && d2 > 0);
     sim ((n1*d2 + n2*d1), (d1*d2))
 
 (*f1 f2 -> f1 * f2*)
 let times (f1:t) (f2:t) = 
     match (f1, f2) with
     | ((n1, d1), (n2, d2)) -> 
-    let () = assert (d1 > 0 && d2 > 0) in
+    assert (d1 > 0 && d2 > 0);
     sim (n1*n2, d1*d2)
 
 (*f1 f2 -> f1 / f2*)
 let div (f1:t) (f2:t) = 
     match (f1, f2) with
     | ((n1, d1), (n2, d2)) -> 
-    let () = assert (d1 > 0 && d2 > 0 && (not (n2 = 0))) in
+    assert (d1 > 0 && d2 > 0 && (not (n2 = 0)));
     sim (n1*d2, d1*n2)
+
+let neg f =
+    match f with
+    | (n, d) ->
+    assert (d > 0); (-n, d)
+
+let get_sign f = 
+    match f with
+    | (n, d) ->
+    assert (d > 0);
+    if n > 0 then Pos else if n < 0 then Neg else Null
