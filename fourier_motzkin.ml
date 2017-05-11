@@ -19,10 +19,10 @@ struct
 
     (*eliminate xi from invariant set inv and
     return a new equivalent invariant set*)
-    let eliminate (instr : ST.instr) (i : int) (inv : ST.inv) : (ST.inv * ST.instr) =
+    let eliminate (instr : ST.instr) (inv : ST.inv) : (ST.inv * ST.instr) =
         match instr with
         | ST.Aff (i, e) ->
-        
+
         if is_inversible instr then
             let t = FT.neg e.(i) in
             let e' = e.(i) <- (-1, 1); Array.map (fun a -> FT.div a t) e in
@@ -49,6 +49,7 @@ struct
             in
             
             let es = List.fold_left (aux i) empty inv in
+
             (* generate |leq| * |geq| new invariants *)
             let aux leq l e =
                 List.fold_left (fun a b -> (Array.map2 FT.sub e b)::a) l leq in

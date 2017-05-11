@@ -49,17 +49,18 @@ let times (f1:t) (f2:t) =
     assert (d1 > 0 && d2 > 0);
     sim (n1*n2, d1*d2)
 
+let neg f =
+    match f with
+    | (n, d) ->
+    assert (d > 0); (-n, d)
+
 (*f1 f2 -> f1 / f2*)
 let div (f1:t) (f2:t) = 
     match (f1, f2) with
     | ((n1, d1), (n2, d2)) -> 
     assert (d1 > 0 && d2 > 0 && (not (n2 = 0)));
-    sim (n1*d2, d1*n2)
-
-let neg f =
-    match f with
-    | (n, d) ->
-    assert (d > 0); (-n, d)
+    let res = sim (abs(n1*d2), abs(d1*n2)) in
+    if n1 * n2 < 0 then neg res else res
 
 let get_sign f = 
     match f with
