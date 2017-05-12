@@ -17,3 +17,4 @@ let inv' =
     | _ -> raise Test;;
 
 List.map (fun a -> FT.print_array a) (fst inv');;
+naive
