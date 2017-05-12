@@ -1,16 +1,18 @@
-module SimplexSolver =
+module type SimplexSolver =
 sig
+    (* linear program type *)
     type t
 		
-		val convert : 
+    (* transform a linear program to standard form *)
+		val trans : t -> t
 
-    (*pivot operation
-    * t : canoical table with form
-            object : max z = sum (a_0i * x_i)
-            rows : sum_k (a_ki * x_i) >= 0
-    * i : pivot row index
-    * j : entering variable index
-    *)
+    (* pivot operation *)
     val pivot : t -> int -> int -> unit
+
+    (* find pivot *)
+    val find_pivot : t -> int -> int
+
+    (* get basic solution *)
+    val basic_solution : t -> int array -> int
 
 end
