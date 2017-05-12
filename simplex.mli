@@ -1,10 +1,8 @@
-module ST = Tree.SyntaxTree
-
 module SimplexSolver =
-struct
-    type t = ST.expr array
+sig
+    type t
 		
-		
+		val convert : 
 
     (*pivot operation
     * t : canoical table with form
@@ -13,6 +11,6 @@ struct
     * i : pivot row index
     * j : entering variable index
     *)
-    let pivot t i j = ()
+    val pivot : t -> int -> int -> unit
 
 end
