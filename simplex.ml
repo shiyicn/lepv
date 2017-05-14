@@ -1,10 +1,9 @@
 module ST = Tree.SyntaxTree
+module FT = Frac
 
 module SimplexSolver =
 struct
     type t = ST.expr array
-
-    let find_sign 
 
     (* transform a linear program to standard form 
     * convert min object to max 
@@ -15,7 +14,19 @@ struct
     * if some variables xj is unrestricted in sign, replace it everywhere with
             s''_j - s'_ j with s''_j, s'_j >= 0
     *)
-    let trans tab = 
+    let trans tab = (*tansform expr to simplex standard*)
+            let lenExpr = Array.length tab.(0) in               
+              let funTab expr = 
+                     let newexpr = Array.make (2 * lenExpr - 1) FT.zero in
+                     Array.iteri (fun i a ->match i with
+                      | 0 -> newexpr.(0) <- FT.neg expr.(0)
+                      | _ -> newexpr.(2 * i - 1) <- expr.(i); newexpr.(2 * i) <- FT.neg expr.(i)) expr
+                     ;newexpr
+                in
+                let newtab = Array.map funTab tab 
+
+                      
+              
         
 
     (*pivot operation
