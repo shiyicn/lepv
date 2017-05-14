@@ -1,6 +1,6 @@
 ### Starting build.
 # Target: test.ml.depends, tags: { extension:ml, file:test.ml, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -modules test.ml > test.ml.depends # cached
+ocamlfind ocamldep -modules test.ml > test.ml.depends
 # Target: fourier_motzkin.ml.depends, tags: { extension:ml, file:fourier_motzkin.ml, ocaml, ocamldep, quiet }
 ocamlfind ocamldep -modules fourier_motzkin.ml > fourier_motzkin.ml.depends # cached
 # Target: frac.ml.depends, tags: { extension:ml, file:frac.ml, ocaml, ocamldep, quiet }
@@ -17,8 +17,15 @@ ocamlfind ocamlc -c -o cs.cmo cs.ml # cached
 ocamlfind ocamlc -c -o tree.cmo tree.ml # cached
 # Target: fourier_motzkin.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:fourier_motzkin.cmo, file:fourier_motzkin.ml, implem, ocaml, quiet }
 ocamlfind ocamlc -c -o fourier_motzkin.cmo fourier_motzkin.ml # cached
+# Target: simplex.ml.depends, tags: { extension:ml, file:simplex.ml, ocaml, ocamldep, quiet }
+ocamlfind ocamldep -modules simplex.ml > simplex.ml.depends # cached
+# Target: simplex.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:simplex.cmo, file:simplex.ml, implem, ocaml, quiet }
+ocamlfind ocamlc -c -o simplex.cmo simplex.ml # cached
 # Target: test.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:test.cmo, file:test.ml, implem, ocaml, quiet }
-ocamlfind ocamlc -c -o test.cmo test.ml # cached
+ocamlfind ocamlc -c -o test.cmo test.ml
++ ocamlfind ocamlc -c -o test.cmo test.ml
+File "test.ml", line 24, characters 0-30:
+Warning 10: this expression should have type unit.
 # Target: frac.cmx, tags: { compile, extension:cmx, extension:ml, file:frac.cmx, file:frac.ml, implem, native, ocaml, quiet }
 ocamlfind ocamlopt -c -o frac.cmx frac.ml # cached
 # Target: cs.cmx, tags: { compile, extension:cmx, extension:ml, file:cs.cmx, file:cs.ml, implem, native, ocaml, quiet }
@@ -27,8 +34,13 @@ ocamlfind ocamlopt -c -o cs.cmx cs.ml # cached
 ocamlfind ocamlopt -c -o tree.cmx tree.ml # cached
 # Target: fourier_motzkin.cmx, tags: { compile, extension:cmx, extension:ml, file:fourier_motzkin.cmx, file:fourier_motzkin.ml, implem, native, ocaml, quiet }
 ocamlfind ocamlopt -c -o fourier_motzkin.cmx fourier_motzkin.ml # cached
+# Target: simplex.cmx, tags: { compile, extension:cmx, extension:ml, file:simplex.cmx, file:simplex.ml, implem, native, ocaml, quiet }
+ocamlfind ocamlopt -c -o simplex.cmx simplex.ml # cached
 # Target: test.cmx, tags: { compile, extension:cmx, extension:ml, file:test.cmx, file:test.ml, implem, native, ocaml, quiet }
-ocamlfind ocamlopt -c -o test.cmx test.ml # cached
+ocamlfind ocamlopt -c -o test.cmx test.ml
++ ocamlfind ocamlopt -c -o test.cmx test.ml
+File "test.ml", line 24, characters 0-30:
+Warning 10: this expression should have type unit.
 # Target: test.native, tags: { dont_link_with, extension:native, file:test.native, link, native, ocaml, program, quiet }
-ocamlfind ocamlopt -linkpkg cs.cmx frac.cmx tree.cmx fourier_motzkin.cmx test.cmx -o test.native # cached
+ocamlfind ocamlopt -linkpkg cs.cmx frac.cmx tree.cmx fourier_motzkin.cmx simplex.cmx test.cmx -o test.native
 # Compilation successful.
