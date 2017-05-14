@@ -15,21 +15,15 @@ struct
             s''_j - s'_ j with s''_j, s'_j >= 0
     *)
     let trans tab = (*tansform expr to simplex standard*)
-            let lenExpr = Array.length tab.(0) in               
-              let funTab expr = 
-                     let newexpr = Array.make (2 * lenExpr) FT.zero in
-                     Array.iteri (fun i a ->match i with
+        let lenExpr = Array.length tab.(0) in               
+        let funTab expr = 
+                let newexpr = Array.make (2 * lenExpr) FT.zero in
+                Array.iteri (fun i a ->match i with
                       | 0 -> newexpr.(0) <- FT.neg expr.(0)
                       | _ -> newexpr.(2 * i - 1) <- expr.(i); newexpr.(2 * i) <- FT.neg expr.(i)) expr
-
-                     ;newexpr(Array.length newexpr -1) <- -1
+                     ;newexpr.(Array.length newexpr -1) <- (-1, 1)
                      ;newexpr
-                in
-                let newtab = Array.map funTab tab 
-
-                      
-              
-        
+        in Array.map funTab tab
 
     (*pivot operation
     * t : canoical table with form
