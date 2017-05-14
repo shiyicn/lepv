@@ -19,12 +19,22 @@ struct
         let funTab expr = 
                 let newexpr = Array.make (2 * lenExpr) FT.zero in
                 Array.iteri (fun i a ->match i with
-                      | 0 -> newexpr.(0) <- FT.neg expr.(0)
-                      | _ -> newexpr.(2 * i - 1) <- expr.(i); newexpr.(2 * i) <- FT.neg expr.(i)) expr
+                      | 0 -> newexpr.(0) <- FT.neg a.(0)
+                      | _ -> newexpr.(2 * i - 1) <- a.(i); newexpr.(2 * i) <- FT.neg a.(i)) expr
                      ;newexpr.(Array.length newexpr -1) <- (-1, 1)
                      ;newexpr
         in Array.map funTab tab
+    
+    let max objective = (*transform objective to simplex standard*)
+              let maxexpr = Array.make(Array.length expr + 1) FT.zero in
+                  let f i a =
+                          match i with
+                          | 0 -> maxexpr.(0) <- (1,1)
+                          | _ -> matexpr.(i) <- FT.neg a.(i)  
+                          in Array.iteri f objective
+                 ;maxexpr
 
+                        
     (*pivot operation
     * t : canoical table with form
             object : max z = sum (a_0i * x_i)
