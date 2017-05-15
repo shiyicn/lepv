@@ -21,9 +21,14 @@ ocamlfind ocamlc -c -o fourier_motzkin.cmo fourier_motzkin.ml # cached
 ocamlfind ocamldep -modules simplex.ml > simplex.ml.depends
 # Target: simplex.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:simplex.cmo, file:simplex.ml, implem, ocaml, quiet }
 ocamlfind ocamlc -c -o simplex.cmo simplex.ml
-+ ocamlfind ocamlc -c -o simplex.cmo simplex.ml
-File "simplex.ml", line 36, characters 52-56:
-Error: Unbound value expr
-Hint: Did you mean exp?
+# Target: test.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:test.cmo, file:test.ml, implem, ocaml, quiet }
+ocamlfind ocamlc -c -o test.cmo test.ml
++ ocamlfind ocamlc -c -o test.cmo test.ml
+File "test.ml", line 24, characters 0-30:
+Warning 10: this expression should have type unit.
+File "test.ml", line 26, characters 27-28:
+Error: This expression has type (int * int) array
+       but an expression was expected of type FT.t array array
+       Type int * int is not compatible with type FT.t array 
 Command exited with code 2.
 # Compilation unsuccessful.

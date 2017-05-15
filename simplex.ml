@@ -15,22 +15,27 @@ struct
             s''_j - s'_ j with s''_j, s'_j >= 0
     *)
     let trans tab = (*tansform expr to simplex standard*)
-        let lenExpr = Array.length tab.(0) in               
-        let funTab expr = 
-                let newexpr = Array.make (2 * lenExpr + 1) FT.zero in
+        let lenExpr = Array.length tab.(0) in
+        let f expr = 
+                let expr' = Array.make (2 * lenExpr + 1) FT.zero in
                 let aux i a = 
-                      match i with
-                      | 0 -> 
-                        if FT.get_sign (a.(0)) = FT.Neg then 
-                          newexpr.(0) <- FT.neg a.(0); newexpr.(Array.length newexpr - 2) <- (1,1)
-                        else
-                          newexpr.(0) <- a.(0); newexpr.(2 * lenExpr) <- (1, 1); newexpr.(Array.length newexpr - 2) <- (-1, 1)
-                      | _ -> newexpr.(2 * i - 1) <- a.(i); newexpr.(2 * i) <- FT.neg a.(i)
-                in
-                Array.iteri aux expr
-                ;newexpr
-        in Array.map funTab tab
+                match i with
+                | 0 -> 
+                if FT.get_sign a = FT.Neg then
+                        begin
+                        expr'.(0) <- FT.neg a; expr'.(Array.length expr' - 2) <- (1,1)
+                        end
+                else
+                        begin
+                        expr'.(0) <- a.(0);
+                        expr'.(2 * lenExpr) <- (1, 1);
+                        expr'.(Array.length expr' - 2) <- (-1, 1)
+                        end
+                | _ -> expr'.(2 * i - 1) <- a.(i); expr'.(2 * i) <- FT.neg a.(i) in
+                Array.iteri aux expr; expr' in
+        Array.map f tab
     
+    (*
     let max objective = (*transform objective to simplex standard*)
               let maxexpr = Array.make(Array.length expr + 1) FT.zero in
                   let f i a =
@@ -39,6 +44,7 @@ struct
                           | _ -> matexpr.(i) <- FT.neg a.(i)  
                           in Array.iteri f objective
                  ;maxexpr
+                *)
 
                         
     (*pivot operation
