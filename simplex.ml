@@ -22,13 +22,12 @@ struct
                       match i with
                       | 0 -> 
                         if FT.get_sign (a.(0)) = FT.Neg then 
-                          newexpr.(0) <- FT.neg a.(0)
+                          newexpr.(0) <- FT.neg a.(0); newexpr.(Array.length newexpr - 2) <- (1,1)
                         else
-                          newexpr.(0) <- a.(0); newexpr.(2 * lenExpr) <- (1, 1)
+                          newexpr.(0) <- a.(0); newexpr.(2 * lenExpr) <- (1, 1); newexpr.(Array.length newexpr - 2) <- (-1, 1)
                       | _ -> newexpr.(2 * i - 1) <- a.(i); newexpr.(2 * i) <- FT.neg a.(i)
                 in
                 Array.iteri aux expr
-                ;newexpr.(Array.length newexpr -1) <- (-1, 1)
                 ;newexpr
         in Array.map funTab tab
     
