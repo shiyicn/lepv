@@ -1,2 +1,29 @@
 ### Starting build.
+# Target: test.ml.depends, tags: { extension:ml, file:test.ml, ocaml, ocamldep, quiet }
+ocamlfind ocamldep -modules test.ml > test.ml.depends # cached
+# Target: fourier_motzkin.ml.depends, tags: { extension:ml, file:fourier_motzkin.ml, ocaml, ocamldep, quiet }
+ocamlfind ocamldep -modules fourier_motzkin.ml > fourier_motzkin.ml.depends # cached
+# Target: frac.ml.depends, tags: { extension:ml, file:frac.ml, ocaml, ocamldep, quiet }
+ocamlfind ocamldep -modules frac.ml > frac.ml.depends # cached
+# Target: frac.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:frac.cmo, file:frac.ml, implem, ocaml, quiet }
+ocamlfind ocamlc -c -o frac.cmo frac.ml # cached
+# Target: tree.ml.depends, tags: { extension:ml, file:tree.ml, ocaml, ocamldep, quiet }
+ocamlfind ocamldep -modules tree.ml > tree.ml.depends # cached
+# Target: cs.ml.depends, tags: { extension:ml, file:cs.ml, ocaml, ocamldep, quiet }
+ocamlfind ocamldep -modules cs.ml > cs.ml.depends # cached
+# Target: cs.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:cs.cmo, file:cs.ml, implem, ocaml, quiet }
+ocamlfind ocamlc -c -o cs.cmo cs.ml # cached
+# Target: tree.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:tree.cmo, file:tree.ml, implem, ocaml, quiet }
+ocamlfind ocamlc -c -o tree.cmo tree.ml # cached
+# Target: fourier_motzkin.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:fourier_motzkin.cmo, file:fourier_motzkin.ml, implem, ocaml, quiet }
+ocamlfind ocamlc -c -o fourier_motzkin.cmo fourier_motzkin.ml # cached
+# Target: simplex.ml.depends, tags: { extension:ml, file:simplex.ml, ocaml, ocamldep, quiet }
+ocamlfind ocamldep -modules simplex.ml > simplex.ml.depends
+# Target: simplex.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:simplex.cmo, file:simplex.ml, implem, ocaml, quiet }
+ocamlfind ocamlc -c -o simplex.cmo simplex.ml
++ ocamlfind ocamlc -c -o simplex.cmo simplex.ml
+File "simplex.ml", line 36, characters 52-56:
+Error: Unbound value expr
+Hint: Did you mean exp?
+Command exited with code 2.
 # Compilation unsuccessful.
