@@ -17,9 +17,9 @@ struct
     let trans tab = (*tansform expr to simplex standard*)
         let lenExpr = Array.length tab.(0) in               
         let funTab expr = 
-                let newexpr = Array.make (2 * lenExpr) FT.zero in
+                let newexpr = Array.make (2 * lenExpr + 1) FT.zero in
                 Array.iteri (fun i a ->match i with
-                      | 0 -> newexpr.(0) <- FT.neg a.(0)
+                      | 0 -> if a.(0) <= 0 then newexpr.(0) <- FT.neg a.(0) else begin newexpr.(0) <- a.(0); newexpr.(2 * lenExpr) <- 1 end
                       | _ -> newexpr.(2 * i - 1) <- a.(i); newexpr.(2 * i) <- FT.neg a.(i)) expr
                      ;newexpr.(Array.length newexpr -1) <- (-1, 1)
                      ;newexpr
