@@ -10,12 +10,12 @@ let convert (a : int array) =
     Array.map (fun a -> (a, 1)) a
 
 (* convert a fraction array to string *)
-let tostring a = (string_of_int (fst a))^"/"^(string_of_int (snd a))
+let to_string a = (string_of_int (fst a))^"/"^(string_of_int (snd a))
 
 (* print a fraction array *)
 let print_array (a : t array) =
     ignore(Array.map 
-    (fun a -> print_string ((tostring a)^"\t")) a);
+    (fun a -> print_string ((to_string a)^"\t")) a);
     print_string "\n"
 
 (* a b -> greatest common denominator of a and b *)
@@ -67,3 +67,7 @@ let get_sign f =
     | (n, d) ->
     assert (d > 0);
     if n > 0 then Pos else if n < 0 then Neg else Null
+
+let abs f =
+    match f with
+    | (n, d) -> assert (d > 0); (abs n, d)

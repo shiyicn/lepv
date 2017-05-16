@@ -1,1 +1,1 @@
-test.ml: Array Fourier_motzkin Frac Simplex Tree
+test.ml: Fourier_motzkin Frac Simplex Sparse_matrix Tree

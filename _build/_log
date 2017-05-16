@@ -18,17 +18,18 @@ ocamlfind ocamlc -c -o tree.cmo tree.ml # cached
 # Target: fourier_motzkin.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:fourier_motzkin.cmo, file:fourier_motzkin.ml, implem, ocaml, quiet }
 ocamlfind ocamlc -c -o fourier_motzkin.cmo fourier_motzkin.ml # cached
 # Target: simplex.ml.depends, tags: { extension:ml, file:simplex.ml, ocaml, ocamldep, quiet }
-ocamlfind ocamldep -modules simplex.ml > simplex.ml.depends
+ocamlfind ocamldep -modules simplex.ml > simplex.ml.depends # cached
 # Target: simplex.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:simplex.cmo, file:simplex.ml, implem, ocaml, quiet }
-ocamlfind ocamlc -c -o simplex.cmo simplex.ml
+ocamlfind ocamlc -c -o simplex.cmo simplex.ml # cached
+# Target: sparse_matrix.mli.depends, tags: { extension:mli, file:sparse_matrix.mli, ocaml, ocamldep, quiet }
+ocamlfind ocamldep -modules sparse_matrix.mli > sparse_matrix.mli.depends # cached
+# Target: sparse_matrix.cmi, tags: { byte, compile, extension:mli, file:sparse_matrix.mli, interf, ocaml, quiet }
+ocamlfind ocamlc -c -o sparse_matrix.cmi sparse_matrix.mli # cached
 # Target: test.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:test.cmo, file:test.ml, implem, ocaml, quiet }
 ocamlfind ocamlc -c -o test.cmo test.ml
 + ocamlfind ocamlc -c -o test.cmo test.ml
-File "test.ml", line 24, characters 0-30:
-Warning 10: this expression should have type unit.
-File "test.ml", line 26, characters 27-28:
-Error: This expression has type (int * int) array
-       but an expression was expected of type FT.t array array
-       Type int * int is not compatible with type FT.t array 
+File "test.ml", line 24, characters 21-27:
+Error: This expression has type 'a * 'b
+       but an expression was expected of type SM.e = Sparse_matrix.e
 Command exited with code 2.
 # Compilation unsuccessful.

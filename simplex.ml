@@ -1,51 +1,65 @@
 module ST = Tree.SyntaxTree
 module FT = Frac
+module SM = Sparse_matrix
 
 module SimplexSolver =
 struct
-    type t = ST.expr array
+    type t = SM.m
 
-    (* transform a linear program to standard form 
-    * convert min object to max 
-    * if a constraint is sum(a_i * x_i) <= b convert it to
+    (* expression standardisation
+    * expr -> expr' with expr'.(0) as constant element
+    *)
+    (* transform a constraint to standard form 
+    * 1 : if a constraint is sum(a_i * x_i) <= b convert it to
             sum(a_i * x_i) + s = b where s >= 0
-    * if a constraint is sum(a_i * x_i) >= b convert it to
-            sum(a_i * x_i) - s = b where b >= 0
-    * if some variables xj is unrestricted in sign, replace it everywhere with
+    * 2 : if a constraint is sum(a_i * x_i) >= b convert it to
+            sum(a_i * x_i) - s = b where s >= 0
+    * 3 : if some variables xj is unrestricted in sign, replace it everywhere with
             s''_j - s'_ j with s''_j, s'_j >= 0
     *)
-    let trans tab = (*tansform expr to simplex standard*)
-        let lenExpr = Array.length tab.(0) in
-        let f expr = 
-                let expr' = Array.make (2 * lenExpr + 1) FT.zero in
-                let aux i a = 
-                match i with
-                | 0 -> 
-                if FT.get_sign a = FT.Neg then
-                        begin
-                        expr'.(0) <- FT.neg a; expr'.(Array.length expr' - 2) <- (1,1)
-                        end
+    (* tansform expr to simplex standard *)
+    (* define single transformation for an expression*)
+    let ex_trans expr ex_in =
+        let len = Array.length expr in
+        let expr' = SM.create 10 in
+        let sign_c = Frac.get_sign expr.(0) in (* const coefficient sign -- sign_c*)
+        let aux i a = 
+                if i = 0 then SM.add_element expr' 0 (FT.abs a) (* convert const to be non-negative*)
                 else
-                        begin
-                        expr'.(0) <- a.(0);
-                        expr'.(2 * lenExpr) <- (1, 1);
-                        expr'.(Array.length expr' - 2) <- (-1, 1)
-                        end
-                | _ -> expr'.(2 * i - 1) <- a.(i); expr'.(2 * i) <- FT.neg a.(i) in
-                Array.iteri aux expr; expr' in
-        Array.map f tab
-    
-    (*
-    let max objective = (*transform objective to simplex standard*)
-              let maxexpr = Array.make(Array.length expr + 1) FT.zero in
-                  let f i a =
-                          match i with
-                          | 0 -> maxexpr.(0) <- (1,1)
-                          | _ -> matexpr.(i) <- FT.neg a.(i)  
-                          in Array.iteri f objective
-                 ;maxexpr
-                *)
+                let sign' = FT.get_sign a in
+                match sign_c with
+                (* processus 3 *)
+                | FT.Neg -> 
+                        SM.add_element expr' (2*i-1) a;
+                        SM.add_element expr' (2*i) (FT.neg a)
+                | FT.Pos -> 
+                        SM.add_element expr' (2*i-1) (FT.neg a);
+                        SM.add_element expr' (2*i) a
+                | FT.Null -> () in
+        Array.iteri aux expr;
+        (* processus 2 and 1*)
+        if sign_c = FT.Neg then SM.add_element expr' ex_in (1, 1)
+        else SM.add_element expr' ex_in (-1, 1)
+        ;expr'
 
+    (* standardise expr array*)
+    let trans tab = 
+        let len = Array.length tab in
+        Array.mapi (fun i a -> ex_trans a (2*len-1+i)) tab
+    
+    let max obj = (*transform objective to simplex standard*)
+        let obj' = SM.create 10 in
+        let aux i a =
+                (* add constant to new obj *)
+                if i = 0 then SM.add_element obj' a
+                else
+                match FT.get_sign a with
+                (* processus 3 *)
+                | FT.Neg| FT.Pos -> 
+                        SM.add_element expr' (2*i-1) a;
+                        SM.add_element expr' (2*i) (FT.neg a)
+                | FT.Null -> () in
+        Array.iteri aux obj
                         
     (*pivot operation
     * t : canoical table with form
@@ -55,5 +69,7 @@ struct
     * j : entering variable index
     *)
     let pivot t i j = ()
+
+    
 
 end
