@@ -1,13 +1,13 @@
 module FT = Frac
 
-type e = FT.t
-
 module IntHash =
 struct
-    type t = int
-    let equal i j = i=j
-    let hash i = i land max_int
+  type t = int
+  let equal i j = i=j
+  let hash i = i land max_int
 end
+
+type e = FT.t
 
 module IntHashtbl = Hashtbl.Make(IntHash)
 
@@ -18,57 +18,60 @@ type m = t list
 exception DivideZero
 
 let get_elt_row r i =
-    try
-        IntHashtbl.find r i
-    with Not_found -> FT.zero
+  try
+    IntHashtbl.find r i
+  with Not_found -> FT.zero
 
 let sub r1 r2 =
-    let aux row i elt =
-        let e = get_elt_row row i in
-        IntHashtbl.replace row i (FT.sub e elt)
-    in IntHashtbl.iter (aux r1) r2
+  let aux row i elt =
+    let e = get_elt_row row i in
+    IntHashtbl.replace row i (FT.sub e elt)
+  in IntHashtbl.iter (aux r1) r2
 
 let add r1 r2 =
-    let aux row i elt =
-        let e = get_elt_row row i in
-        IntHashtbl.replace row i (FT.add e elt)
-    in IntHashtbl.iter (aux r1) r2
+  let aux row i elt =
+    let e = get_elt_row row i in
+    IntHashtbl.replace row i (FT.add e elt)
+  in IntHashtbl.iter (aux r1) r2
 
 let times_const r elt =
-    if elt = FT.zero then IntHashtbl.clear r
-    else IntHashtbl.iter 
-            (fun i e -> IntHashtbl.replace r i (FT.times e elt))
-            r
+  if elt = FT.zero then IntHashtbl.clear r
+  else IntHashtbl.iter 
+      (fun i e -> IntHashtbl.replace r i (FT.times e elt))
+      r
 
 let div_const r elt =
-    if elt = FT.zero then raise DivideZero
-    else IntHashtbl.iter 
-            (fun i e -> IntHashtbl.replace r i (FT.div e elt))
-            r
+  if elt = FT.zero then raise DivideZero
+  else IntHashtbl.iter 
+      (fun i e -> IntHashtbl.replace r i (FT.div e elt))
+      r
 
 let to_string r =
-    (IntHashtbl.fold 
-        (fun i a b -> "("^(string_of_int i)^" , "^(FT.to_string a)^")\t"^b)
-        r
-        "")^"\n"
+  (IntHashtbl.fold 
+     (fun i a b -> "("^(string_of_int i)^" , "^(FT.to_string a)^")\t"^b)
+     r
+     "")^"\n"
 
 let create n = IntHashtbl.create n
 
 let add_element r i (elt : e) =
-    IntHashtbl.add r i elt
+  IntHashtbl.add r i elt
 
 exception FoundNegIndex of int
 exception NullElementInSparseRow
 
 let find_neg (r : t) =
-    let index = ref (-1) in
-    (try
-        IntHashtbl.iter 
-        (fun i a -> 
-        match (FT.get_sign a) with
-        | FT.Neg -> raise (FoundNegIndex i)
-        | FT.Null -> raise NullElementInSparseRow
-        | FT.Pos -> ()
-        ) r
-    with FoundNegIndex i -> index := i; Printf.printf "negative index found : %d\n" i);
-    !index
+  let index = ref (-1) in
+  (try
+     IntHashtbl.iter 
+       (fun i a -> 
+          match (FT.get_sign a) with
+          | FT.Neg -> raise (FoundNegIndex i)
+          | FT.Null -> raise NullElementInSparseRow
+          | FT.Pos -> ()
+       ) r
+   with FoundNegIndex i -> index := i; Printf.printf "negative index found : %d\n" i);
+  !index
+
+let iter f r =
+    IntHashtbl.iter f r

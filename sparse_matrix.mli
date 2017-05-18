@@ -1,11 +1,12 @@
+
 (* element type of matrix*)
-type e
+type e = Frac.t
 
 (* matrix row type t *)
 type t
 
 (* matrix type m *)
-type m
+type m = t array
 
 (* get element in a row *)
 val get_elt_row : t -> int -> e
@@ -34,3 +35,5 @@ val add_element : t -> int -> e -> unit
 
 (* find the first negative instance in row *)
 val find_neg : t -> int
+
+val iter : ('a -> 'b -> unit) -> t -> unit

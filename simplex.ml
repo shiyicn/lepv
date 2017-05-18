@@ -20,13 +20,11 @@ struct
   (* tansform expr to simplex standard *)
   (* define single transformation for an expression*)
   let ex_trans expr ex_in =
-    let len = Array.length expr in
     let expr' = SM.create 10 in
     let sign_c = Frac.get_sign expr.(0) in (* const coefficient sign -- sign_c*)
     let aux i a = 
       if i = 0 then SM.add_element expr' 0 (FT.abs a) (* convert const to be non-negative*)
       else
-        let sign' = FT.get_sign a in
         match sign_c with
         (* processus 3 *)
         | FT.Neg -> 
@@ -43,8 +41,9 @@ struct
     ;expr'
 
   (* standardise expr array*)
-  let trans tab = 
-    let len = Array.length tab in
+  let trans tab htl= 
+    (* find appropriate len for variables*)
+    let len = ST.get_var_size htl  in
     Array.mapi (fun i a -> ex_trans a (2*len-1+i)) tab
 
   (*transform objective to simplex standard form*)
@@ -52,16 +51,19 @@ struct
     let obj' = SM.create 10 in
     let aux i a =
       (* add constant to new obj *)
-      if i = 0 then SM.add_element obj' a
+      if i = 0 then SM.add_element obj' 0 a
       else
         match FT.get_sign a with
         (* processus 3 *)
         | FT.Neg| FT.Pos ->
           SM.add_element obj' (2*i-1) a;
           SM.add_element obj' (2*i) (FT.neg a)
-        | FT.Null -> () i
-                       Array.iteri aux obj; obj'
-
+        | FT.Null -> () in
+      SM.iter aux obj; obj'
+  
+  (* construct a linear program according to
+  * an objective and some expressions
+  *)
   let cons_program obj exprs = 
     (max obj), (trans exprs)
 
@@ -74,12 +76,11 @@ struct
   *)
   let pivot t i j = ()
 
-  let exception FindNeg
+  exception FindNeg
 
   let pick_neg (tab:t) = 
     match tab with
     | (obj, _ ) -> SM.find_neg obj
-
 
   let get_basic_solution t = ()
 end

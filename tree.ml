@@ -25,6 +25,8 @@ end
 module SyntaxTree = 
 struct
   module VarHashtbl = Hashtbl.Make(Variables.V)
+  
+  type var_set = int VarHashtbl.t
 
   (*
   Var : variables s "string"; As : assignment; 
@@ -242,4 +244,6 @@ struct
       | (Int, _) -> ignore(cons_var q htl); (htl, (VarHashtbl.length htl), cons_tree q htl)
       | _ -> raise (ExpectSyntax "type int is expected")
 
+  let get_var_size htl =
+    VarHashtbl.length htl
 end
