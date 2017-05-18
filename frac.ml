@@ -71,3 +71,6 @@ let get_sign f =
 let abs f =
   match f with
   | (n, d) -> assert (d > 0); (abs n, d)
+
+let com f1 f2 =
+  get_sign (div f1 f2)

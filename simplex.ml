@@ -18,6 +18,9 @@ struct
           s''_j - s'_ j with s''_j, s'_j >= 0
   *)
   (* tansform expr to simplex standard *)
+  (* expr'.(0) : constant
+  * other elements are stored in other index
+  *)
   (* define single transformation for an expression*)
   let ex_trans expr ex_in =
     let expr' = SM.create 10 in
@@ -74,13 +77,25 @@ struct
    * i : pivot row index
    * j : entering variable index
   *)
-  let pivot t i j = ()
+  let pivot (tab : t) i j = ()
 
   exception FindNeg
 
   let pick_neg (tab:t) = 
     match tab with
     | (obj, _ ) -> SM.find_neg obj
-
+  
   let get_basic_solution t = ()
+
+  let find_pivot (tab : t) =
+    let index = pick_neg tab in
+    if index = -1 then
+      get_basic_solution tab
+    else
+      let aux i elt a =
+        if i = 0 then a
+        else
+          if FT.div elt 
+      
+
 end

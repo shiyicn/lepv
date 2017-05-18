@@ -13,7 +13,7 @@ module IntHashtbl = Hashtbl.Make(IntHash)
 
 type t = e IntHashtbl.t
 
-type m = t list
+type m = t array
 
 exception DivideZero
 
@@ -73,5 +73,8 @@ let find_neg (r : t) =
    with FoundNegIndex i -> index := i; Printf.printf "negative index found : %d\n" i);
   !index
 
-let iter f r =
+let iter f (r : t) =
     IntHashtbl.iter f r
+
+let fold_left f (matrix : m) a =
+    Array.fold_left f a matrix

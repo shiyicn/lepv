@@ -21,7 +21,7 @@ val add : t -> t -> unit
 val times_const : t -> e -> unit
 
 (* a row t divides a constant e -> t/a *)
-val div_const : t -> e -> t
+val div_const : t -> e -> unit
 
 (* get basic solution *)
 (*val get_solution : m -> e*)
@@ -29,11 +29,17 @@ val div_const : t -> e -> t
 (* convert a row to string *)
 val to_string : t -> string
 
+(* create a row with initial capacity n *)
 val create : int -> t
 
+(* add an element with index i to a row *)
 val add_element : t -> int -> e -> unit
 
 (* find the first negative instance in row *)
 val find_neg : t -> int
 
-val iter : ('a -> 'b -> unit) -> t -> unit
+(* iterator for all elements in a row *)
+val iter : (int -> e -> unit) -> t -> unit
+
+(* fold over all elements in a row *)
+val fold_left : ('a -> t -> 'a) -> 'a -> m

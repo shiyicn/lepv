@@ -32,7 +32,7 @@ print_string (SM.to_string row);;
 
 let row' = SM.create 10;;
 
-SM.add_element row' 2 (3, 8);SM.add_element row' 3 (5, 8);;
+SM.add_element row' 2 (3, 8);SM.add_element row' 11 (5, 8);;
 print_string (SM.to_string row');;
 
 SM.add row row';;
