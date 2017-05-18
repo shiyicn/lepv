@@ -42,4 +42,4 @@ val find_neg : t -> int
 val iter : (int -> e -> unit) -> t -> unit
 
 (* fold over all elements in a row *)
-val fold_left : ('a -> t -> 'a) -> 'a -> m
+val fold_left : ('a -> t -> 'a) -> m -> 'a -> 'a

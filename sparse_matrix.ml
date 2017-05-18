@@ -55,7 +55,8 @@ let to_string r =
 let create n = IntHashtbl.create n
 
 let add_element r i (elt : e) =
-  IntHashtbl.add r i elt
+  if elt = FT.zero then Printf.printf "Zero is ignored!\n"
+  else IntHashtbl.add r i elt
 
 exception FoundNegIndex of int
 exception NullElementInSparseRow

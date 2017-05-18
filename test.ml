@@ -39,6 +39,7 @@ SM.add row row';;
 
 print_string (SM.to_string row);;
 
+let a = FT.((5, 2) / (10, 3));;
 
-
+print_string ((FT.to_string a)^"\n");;
 (*List.map (fun a -> FT.print_array a) (fst inv');;*)

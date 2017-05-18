@@ -81,21 +81,31 @@ struct
 
   exception FindNeg
 
+  (* pick the first negative element index *)
   let pick_neg (tab:t) = 
     match tab with
     | (obj, _ ) -> SM.find_neg obj
   
+  (* get the current basic solution *)
   let get_basic_solution t = ()
 
+  (* find new pivot index *)
   let find_pivot (tab : t) =
     let index = pick_neg tab in
-    if index = -1 then
-      get_basic_solution tab
+    if index = -1 then -1
     else
-      let aux i elt a =
-        if i = 0 then a
+      let aux a expr =
+        let e_i = SM.get_elt_row expr index in
+        if e_i = FT.zero then a
         else
-          if FT.div elt 
-      
-
+          match a with
+          | (ratio, i, ic) ->
+            let const = SM.get_elt_row expr 0 in
+            let ratio' = FT.(const / e_i) in
+            match FT.get_sign FT.(ratio' - ratio) with
+            | FT.Pos -> (ratio', ic, ic+1)
+            | _ -> a
+      in
+      let (_, i, _) = SM.fold_left aux (snd tab) (FT.min_frac, -1, 0)
+      in i
 end
