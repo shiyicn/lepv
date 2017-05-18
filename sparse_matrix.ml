@@ -56,3 +56,19 @@ let create n = IntHashtbl.create n
 
 let add_element r i (elt : e) =
     IntHashtbl.add r i elt
+
+exception FoundNegIndex of int
+exception NullElementInSparseRow
+
+let find_neg (r : t) =
+    let index = ref (-1) in
+    (try
+        IntHashtbl.iter 
+        (fun i a -> 
+        match (FT.get_sign a) with
+        | FT.Neg -> raise (FoundNegIndex i)
+        | FT.Null -> raise NullElementInSparseRow
+        | FT.Pos -> ()
+        ) r
+    with FoundNegIndex i -> index := i; Printf.printf "negative index found : %d\n" i);
+    !index

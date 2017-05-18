@@ -31,3 +31,6 @@ val to_string : t -> string
 val create : int -> t
 
 val add_element : t -> int -> e -> unit
+
+(* find the first negative instance in row *)
+val find_neg : t -> int

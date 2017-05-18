@@ -77,7 +77,7 @@ struct
     | "if"| "else" -> Cond
     | "while" -> Loop
     | _ -> Var
-  
+
   (* tokenizer function *)
   let rec f st en len s q =
     let flag = classer s.[st] in
@@ -110,9 +110,9 @@ struct
         with End_of_file -> x
       in let x = aux x in close_in stream; x
     with e -> close_in stream; raise e
-  
+
   (* lexical analyser for annoted program
-  Ex : prog_txt -> lexical token queue : syntax * string
+     Ex : prog_txt -> lexical token queue : syntax * string
   *)
   let read_prog fname = iofold f fname (Queue.create ())
 
@@ -120,7 +120,7 @@ struct
   exception ExpectSyntax of string
 
   (* build variables list
-  Ex : "x0, x1, x2, ..., xn" -> a map from "xi" -> i
+     Ex : "x0, x1, x2, ..., xn" -> a map from "xi" -> i
   *)
   let cons_var q htl= 
     if Queue.is_empty q then
@@ -136,11 +136,11 @@ struct
           else if a' = Pun then q
           else raise (ExpectSyntax ", or ; is expected after a var in declaration")
         | _ -> raise (ExpectSyntax "Var is expected in declaration") in
-      
+
       aux q 1 htl
 
   (*build expression
-  Ex : "c + a0 * x0 + ... + an * xn }" -> [|c, a0, ..., an|]
+    Ex : "c + a0 * x0 + ... + an * xn }" -> [|c, a0, ..., an|]
   *)
   let cons_expr q l htl = 
     if Queue.is_empty q then raise EmptyQueue
@@ -161,13 +161,13 @@ struct
 
       ignore(aux q);(*print basic expression info *)(*FT.print_array (FT.convert ar)*);
       (FT.convert ar)::l
-  
+
   (*build invariant
-  Ex : expr0 >= 0 & expr1 >= 0 & ... & exprl >= 0 -> expr list
+    Ex : expr0 >= 0 & expr1 >= 0 & ... & exprl >= 0 -> expr list
   *)
   let rec cons_inv q htl l =
-      if Queue.is_empty q then raise EmptyQueue
-      else let e = Queue.pop q in
+    if Queue.is_empty q then raise EmptyQueue
+    else let e = Queue.pop q in
       match e with
       | (Curl, _)| (And, _)| (Parl, _) -> cons_inv q htl (cons_expr q l htl)
       | (Curr, _)| (Parr, _) -> l
@@ -175,10 +175,10 @@ struct
       | (_, s) -> raise (ExpectSyntax ("syntax : "^s^" is not valid in inv construction"))
 
   (*build an instruction : affectation, condition or while loop
-  Ex : 
-  Affectation : xj = expr -> Aff int * expr
-  Condition : if(expr >= 0) block0 else block1 -> Condit expr0 * block0 * block1
-  While loop : while(expr >= 0) block -> While expr * block
+    Ex : 
+    Affectation : xj = expr -> Aff int * expr
+    Condition : if(expr >= 0) block0 else block1 -> Condit expr0 * block0 * block1
+    While loop : while(expr >= 0) block -> While expr * block
   *)
   let rec cons_intr q htl = 
 
@@ -189,27 +189,27 @@ struct
       let () = assert (fst (Queue.pop q) = Curr) in
       block 
     in
-    
+
     if Queue.is_empty q then raise EmptyQueue
     else let e = Queue.pop q in
-    match e with
-    | (Var, s) -> 
-      if fst (Queue.pop q) = As then Aff (VarHashtbl.find htl s, List.hd (cons_expr q [] htl))
-      else raise (ExpectSyntax "syntax : = is expected")
-    | (Cond, _) -> 
-      let ex = List.hd(cons_inv q htl []) in
-      let block0 = aux q htl in
-      let () = assert (fst (Queue.pop q) = Cond) in
-      let block1 = aux q htl in
-      Condit (ex, block0, block1)
-    | (Loop, _) ->
-      let ex = List.hd(cons_inv q htl []) in
-      let block = aux q htl in
-      While (ex, block)
-    | (_, s) -> raise (ExpectSyntax ("Var, Cond, or Loop are expected, not : "^s^"\n"))
-  
+      match e with
+      | (Var, s) -> 
+        if fst (Queue.pop q) = As then Aff (VarHashtbl.find htl s, List.hd (cons_expr q [] htl))
+        else raise (ExpectSyntax "syntax : = is expected")
+      | (Cond, _) -> 
+        let ex = List.hd(cons_inv q htl []) in
+        let block0 = aux q htl in
+        let () = assert (fst (Queue.pop q) = Cond) in
+        let block1 = aux q htl in
+        Condit (ex, block0, block1)
+      | (Loop, _) ->
+        let ex = List.hd(cons_inv q htl []) in
+        let block = aux q htl in
+        While (ex, block)
+      | (_, s) -> raise (ExpectSyntax ("Var, Cond, or Loop are expected, not : "^s^"\n"))
+
   (* build a block (a syntax tree)
-  Ex : {inv0} : instr0; ... ; {invk} : instrk; {invk+1} ->
+     Ex : {inv0} : instr0; ... ; {invk} : instrk; {invk+1} ->
         (inv * intr) list * inv
   *)
   and cons_tree q htl =
