@@ -75,6 +75,6 @@ let abs f =
   | (n, d) -> assert (d > 0); (abs n, d)
 
 let com f1 f2 =
-  get_sign (div f1 f2)
+  get_sign (sub f1 f2)
 
 let (+), (-), ( * ), (/) = add, sub, times, div

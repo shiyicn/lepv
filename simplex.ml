@@ -79,7 +79,7 @@ struct
   *)
   let pivot (tab : t) i j = ()
 
-  exception FindNeg
+  exception FoundNegIndex
 
   (* pick the first negative element index *)
   let pick_neg (tab:t) = 
