@@ -19,7 +19,7 @@ struct
   *)
   (* tansform expr to simplex standard *)
   (* expr'.(0) : constant
-  * other elements are stored in other index
+   * other elements are stored in other index
   *)
   (* define single transformation for an expression*)
   let ex_trans expr ex_in =
@@ -62,22 +62,13 @@ struct
           SM.add_element obj' (2*i-1) a;
           SM.add_element obj' (2*i) (FT.neg a)
         | FT.Null -> () in
-      SM.iter aux obj; obj'
-  
+    SM.iter aux obj; obj'
+
   (* construct a linear program according to
-  * an objective and some expressions
+   * an objective and some expressions
   *)
   let cons_program obj exprs = 
     (max obj), (trans exprs)
-
-  (*pivot operation
-   * t : canoical table with form
-          object : max z = sum (a_0i * x_i)
-          rows : sum_k (a_ki * x_i) >= 0
-   * i : pivot row index
-   * j : entering variable index
-  *)
-  let pivot (tab : t) i j = ()
 
   exception FoundNegIndex
 
@@ -85,9 +76,6 @@ struct
   let pick_neg (tab:t) = 
     match tab with
     | (obj, _ ) -> SM.find_neg obj
-  
-  (* get the current basic solution *)
-  let get_basic_solution t = ()
 
   (* find new pivot index *)
   let find_pivot (tab : t) =
@@ -108,4 +96,16 @@ struct
       in
       let (_, i, _) = SM.fold_left aux (snd tab) (FT.min_frac, -1, 0)
       in i
+
+  (*pivot operation
+   * t : canoical table with form
+          object : max z = sum (a_0i * x_i)
+          rows : sum_k (a_ki * x_i) >= 0
+   * i : pivot row index
+   * j : entering variable index
+  *)
+  let pivot (tab : t) i j = ()
+
+  (* get the current basic solution *)
+  let get_basic_solution t = ()
 end
