@@ -133,7 +133,10 @@ struct
                IntHashtbl.replace count i (n+1)
              with Not_found -> IntHashtbl.add count i 0)
           expr in
-      Array.iter aux exprs;
+      (* iterate all elements in expressions : exprs and 
+      * objective function : obj
+      *)
+      Array.iter aux exprs; aux obj;
     let aux 
 
 end

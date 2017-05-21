@@ -25,13 +25,21 @@ let get_elt_row r i =
 let sub r1 r2 =
   let aux row i elt =
     let e = get_elt_row row i in
-    IntHashtbl.replace row i (FT.sub e elt)
+    let sum = FT.sub e elt in
+    if sum = FT.zero then
+      IntHashtbl.remove row i
+    else
+      IntHashtbl.replace row i sum
   in IntHashtbl.iter (aux r1) r2
 
 let add r1 r2 =
   let aux row i elt =
     let e = get_elt_row row i in
-    IntHashtbl.replace row i (FT.add e elt)
+    let sum = FT.add e elt in
+    if sum = FT.zero then
+      IntHashtbl.remove row i
+    else
+      IntHashtbl.replace row i sum
   in IntHashtbl.iter (aux r1) r2
 
 let times_const r elt =
