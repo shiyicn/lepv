@@ -2,6 +2,17 @@ module ST = Tree.SyntaxTree
 module FT = Frac
 module SM = Sparse_matrix
 
+module IntHash =
+struct
+  type t = int
+  let equal i j = i=j
+  let hash i=i land max_int
+end
+
+module IntHashtbl = Hashtbl.Make(IntHash)
+
+type count = int IntHashtbl.t
+
 module SimplexSolver =
 struct
   type t = SM.t * SM.m
@@ -43,13 +54,13 @@ struct
     else SM.add_element expr' ex_in (-1, 1)
     ;expr'
 
-  (* standardise expr array*)
+  (* standardise expr array *)
   let trans tab htl= 
     (* find appropriate len for variables*)
     let len = ST.get_var_size htl  in
     Array.mapi (fun i a -> ex_trans a (2*len-1+i)) tab
 
-  (*transform objective to simplex standard form*)
+  (* transform objective to simplex standard form *)
   let max obj =
     let obj' = SM.create 10 in
     let aux i a =
@@ -97,7 +108,7 @@ struct
       let (_, i, _) = SM.fold_left aux (snd tab) (FT.min_frac, -1, 0)
       in i
 
-  (*pivot operation
+  (* pivot operation
    * t : canoical table with form
           object : max z = sum (a_0i * x_i)
           rows : sum_k (a_ki * x_i) >= 0
@@ -107,5 +118,22 @@ struct
   let pivot (tab : t) i j = ()
 
   (* get the current basic solution *)
-  let get_basic_solution t = ()
+  let get_basic_solution (tab : t) = 
+    let count = IntHashtbl.create 10 in
+    match tab with 
+    | (obj, exprs) ->
+      (* auxiliary function to get all non-basic variables
+       * index
+      *)
+      let aux expr =
+        SM.iter 
+          (fun i e -> 
+             try
+               let n = IntHashtbl.find count i in
+               IntHashtbl.replace count i (n+1)
+             with Not_found -> IntHashtbl.add count i 0)
+          expr in
+      Array.iter aux exprs;
+    let aux 
+
 end

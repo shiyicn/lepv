@@ -75,7 +75,10 @@ let find_neg (r : t) =
   !index
 
 let iter f (r : t) =
-    IntHashtbl.iter f r
+  IntHashtbl.iter f r
 
 let fold_left f (matrix : m) a =
-    Array.fold_left f a matrix
+  Array.fold_left f a matrix
+
+let replace r i elt =
+  IntHashtbl.replace r i elt
