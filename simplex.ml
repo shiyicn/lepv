@@ -114,10 +114,31 @@ struct
           rows : sum_k (a_ki * x_i) >= 0
    * i : pivot row index
    * j : entering variable index
+   One elimination of objective and constraint 
   *)
-  let pivot (tab : t) i j = ()
+exception InvalidInput
+let pivot (tab : t) i j = 
+    let e = FT.neg (FT.((SM.get_elt_row (fst tab) j) / (SM.get_elt_row (snd tab).(i) j))) in
+      let SM.times_const (snd tab).(i) e 
+    in
+    let expr_pivot = (snd tab).(i)
+    in SM.add (fst tab) expr_pivot
+
+(*first use pivot function, then use pivot_exprs function*)
+let pivot_exprs (tab: t) i j = 
+  let aux i' expr = 
+    match i' with
+    | i ->()
+    | _ ->
+    let e = FT.neg(FT.((SM.get_elt_row expr j)/(SM.get_elt_row ((snd tab).(i')) j))) in
+    let SM.times_const ((snd tab).(i')) e in
+    let SM.add expr ((snd tab).(i')); SM.div_const ((snd tab).(i')) e in
+    Array.iteri aux (snd tab);
+
+
 
   (* get the current basic solution *)
+
   let get_basic_solution (tab : t) = 
     let count = IntHashtbl.create 10 in
     match tab with 
@@ -137,6 +158,13 @@ struct
       * objective function : obj
       *)
       Array.iter aux exprs; aux obj;
-    let aux 
-
+    | (_,_) -> raise InvalidInput
+    (*only preserve the basic variables*)
+    in IntHashtbl.iter (fun i e -> 
+                         match e with 
+                         | 1 -> ()
+                         | _ -> IntHashtbl.remove count i
+                             )
+                       count
+    in let basic_solution = IntHashtbl.create 10 in 
 end
