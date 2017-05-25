@@ -119,20 +119,19 @@ struct
 exception InvalidInput
 let pivot (tab : t) i j = 
     let e = FT.neg (FT.((SM.get_elt_row (fst tab) j) / (SM.get_elt_row (snd tab).(i) j))) in
-      let SM.times_const (snd tab).(i) e 
-    in
-    let expr_pivot = (snd tab).(i)
-    in SM.add (fst tab) expr_pivot
+      let SM.times_const (snd tab).(i) e in
+      SM.add (fst tab) (snd tab).(i)
 
-(*first use pivot function, then use pivot_exprs function, for an elimination of the exprs*)
+(*first use pivot_exprs function, then use pivot function, for an elimination of the exprs and then objective*)
 let pivot_exprs (tab: t) i j = 
-  let aux i' expr = 
+  let pivot = (snd tab).(i) in 
+  let aux i' expr' = 
     match i' with
     | i || SM.get_elt_row ((snd tab).(i')) j = 0 -> ()
     | _ ->
-    let e = FT.neg (FT.((SM.get_elt_row expr j)/(SM.get_elt_row ((snd tab).(i')) j))) in
-    let SM.times_const ((snd tab).(i')) e in
-    let SM.add expr ((snd tab).(i')); SM.div_const ((snd tab).(i')) e in
+    let e = FT.neg (FT.((SM.get_elt_row expr' j)/(SM.get_elt_row pivot j))) in
+    let SM.times_const pivot e in
+    let SM.add expr' pivot in
     Array.iteri aux (snd tab)
 
 
