@@ -77,8 +77,8 @@ struct
   (* construct a linear program according to
    * an objective and some expressions
   *)
-  let cons_program obj exprs = 
-    (max obj), (trans exprs)
+  let cons_program obj exprs vars = 
+    (max obj), (trans exprs vars)
 
   exception FoundNegIndex
 
@@ -88,8 +88,7 @@ struct
     | (obj, _ ) -> SM.find_neg obj
 
   (* find new pivot index *)
-  let find_pivot (tab : t) =
-    let index = pick_neg tab in
+  let find_pivot (tab : t) index =
     if index = -1 then -1
     else
       let aux a expr =
@@ -159,8 +158,8 @@ struct
              with Not_found -> IntHashtbl.add count i 0)
           expr in
       (* iterate all elements in expressions : exprs and 
-      * objective function : obj
-      *)
+       * objective function : obj
+       *)
       Array.iter aux exprs; aux obj;
       (*only preserve the basic variables*)
       let aux i e = 
@@ -184,4 +183,17 @@ struct
     match tab with
     | (obj, exprs) ->
       SM.get_elt_row obj 0
+  
+  let rec solve (tab : t) =
+    if is_solution tab then
+      get_solution tab
+    else
+      (* get entering variable index *)
+      let j = pick_neg tab in
+      (* get pivot row index *)
+      let i = find_pivot tab j in
+      pivot_exprs tab i j; solve tab
+
+  let f obj exprs vars = solve (cons_program obj exprs vars)
+
 end
