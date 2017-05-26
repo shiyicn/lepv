@@ -116,8 +116,7 @@ struct
    * j : entering variable index
    One elimination of objective and constraint 
   *)
-
-let pivot p i j row_index row = 
+  let pivot p i j row_index row = 
     (* suppose that p (the pivot) is already normalised *)
     (* element in row with index j *)
     let e = SM.get_elt_row row j in
