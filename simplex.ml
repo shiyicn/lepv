@@ -116,36 +116,42 @@ struct
    * j : entering variable index
    One elimination of objective and constraint 
   *)
-exception InvalidInput
-let pivot (tab : t) i j = 
-    let e = FT.neg (FT.((SM.get_elt_row (fst tab) j) / (SM.get_elt_row (snd tab).(i) j))) in
-      let SM.times_const (snd tab).(i) e 
-    in
-    let expr_pivot = (snd tab).(i)
-    in SM.add (fst tab) expr_pivot
 
-(*first use pivot function, then use pivot_exprs function, for an elimination of the exprs*)
-let pivot_exprs (tab: t) i j = 
-  let aux i' expr = 
-    match i' with
-    | i || SM.get_elt_row ((snd tab).(i')) j = 0 -> ()
-    | _ ->
-    let e = FT.neg (FT.((SM.get_elt_row expr j)/(SM.get_elt_row ((snd tab).(i')) j))) in
-    let SM.times_const ((snd tab).(i')) e in
-    let SM.add expr ((snd tab).(i')); SM.div_const ((snd tab).(i')) e in
-    Array.iteri aux (snd tab)
+let pivot p i j row_index row = 
+    (* suppose that p (the pivot) is already normalised *)
+    (* element in row with index j *)
+    let e = SM.get_elt_row row j in
+    if row_index = i || e = FT.zero then ()
+    else
+      let r' = SM.copy p in
+      (* transform firstly r' to e*r' *)
+      SM.times_const r' e; SM.sub row r'
 
+  (*first use pivot function, 
+  *then use pivot_exprs function, 
+  *for an elimination of the exprs*)
+  let pivot_exprs (tab: t) i j = 
+    match tab with
+    | (obj, exprs) ->
+      (* firstly normalise exprs.(i) *)
+      let e = SM.get_elt_row exprs.(i) j in
+      SM.div_const exprs.(i) e;
+      Array.iteri (pivot exprs.(i) i j) exprs;
+      (* pivot operation for objective function *)
+      pivot exprs.(i) i j (-1) obj
 
+  exception NegCoeff
+  exception LackConstraints of int
+  exception NullElement
 
   (* get the current basic solution *)
-
-  let get_basic_solution (tab : t) = 
+  let is_solution (tab : t) = 
     let count = IntHashtbl.create 10 in
     match tab with 
     | (obj, exprs) ->
       (* auxiliary function to get all non-basic variables
        * index
-      *)
+       *)
       let aux expr =
         SM.iter 
           (fun i e -> 
@@ -158,13 +164,26 @@ let pivot_exprs (tab: t) i j =
       * objective function : obj
       *)
       Array.iter aux exprs; aux obj;
-    | (_,_) -> raise InvalidInput
-    (*only preserve the basic variables*)
-    in IntHashtbl.iter (fun i e -> 
-                         match e with 
-                         | 1 -> ()
-                         | _ -> IntHashtbl.remove count i
-                             )
-                       count
-    in let basic_solution = IntHashtbl.create 10 in 
+      (*only preserve the basic variables*)
+      let aux i e = 
+        match FT.get_sign e with
+        | FT.Neg -> raise NegCoeff
+        | FT.Null -> raise NullElement
+        | FT.Pos ->
+          try
+            match IntHashtbl.find count i with
+            | 1 -> raise (LackConstraints i)
+            | _ -> ()
+          with Not_found -> raise (LackConstraints i) in
+      try
+        SM.iter aux obj; true
+      with
+      | NegCoeff -> Printf.printf "Negtive coefficient exists.\n"; false
+      | NullElement -> Printf.printf "Null element should not appear in sparse row.\n"; false
+      | LackConstraints i -> Printf.printf "Lack constraints for variable : %d" i;false
+    
+  let get_solution (tab : t) =
+    match tab with
+    | (obj, exprs) ->
+      SM.get_elt_row obj 0
 end

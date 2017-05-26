@@ -45,3 +45,5 @@ val iter : (int -> e -> unit) -> t -> unit
 val fold_left : ('a -> t -> 'a) -> m -> 'a -> 'a
 
 val replace : t -> int -> e -> unit
+
+val copy : t -> t

@@ -90,3 +90,6 @@ let fold_left f (matrix : m) a =
 
 let replace r i elt =
   IntHashtbl.replace r i elt
+
+let copy r = 
+  IntHashtbl.copy r
