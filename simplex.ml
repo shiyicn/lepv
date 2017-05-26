@@ -30,8 +30,7 @@ struct
   *)
   (* tansform expr to simplex standard *)
   (* expr'.(0) : constant
-   * other elements are stored in other index
-  *)
+   * other elements are stored in other index *)
   (* define single transformation for an expression*)
   let ex_trans expr ex_in =
     let expr' = SM.create 10 in
@@ -180,7 +179,7 @@ struct
       | NegCoeff -> Printf.printf "Negtive coefficient exists.\n"; false
       | NullElement -> Printf.printf "Null element should not appear in sparse row.\n"; false
       | LackConstraints i -> Printf.printf "Lack constraints for variable : %d" i;false
-    
+
   let get_solution (tab : t) =
     match tab with
     | (obj, exprs) ->

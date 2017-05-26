@@ -23,9 +23,6 @@ val times_const : t -> e -> unit
 (* a row t divides a constant e -> t/a *)
 val div_const : t -> e -> unit
 
-(* get basic solution *)
-(*val get_solution : m -> e*)
-
 (* convert a row to string *)
 val to_string : t -> string
 
@@ -44,6 +41,8 @@ val iter : (int -> e -> unit) -> t -> unit
 (* fold over all elements in a row *)
 val fold_left : ('a -> t -> 'a) -> m -> 'a -> 'a
 
+(* replace an element_index with another element *)
 val replace : t -> int -> e -> unit
 
+(* make a copy of a specific row *)
 val copy : t -> t
