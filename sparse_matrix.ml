@@ -76,10 +76,13 @@ let find_neg (r : t) =
   (try
      IntHashtbl.iter 
        (fun i a -> 
-          match (FT.get_sign a) with
-          | FT.Neg -> raise (FoundNegIndex i)
-          | FT.Null -> raise NullElementInSparseRow
-          | FT.Pos -> ()
+          (* skip constant index 0 *)
+          if i = 0 then ()
+          else
+            match (FT.get_sign a) with
+            | FT.Neg -> raise (FoundNegIndex i)
+            | FT.Null -> raise NullElementInSparseRow
+            | FT.Pos -> ()
        ) r
    with FoundNegIndex i -> index := i; Printf.printf "negative index found : %d\n" i);
   !index
@@ -101,3 +104,12 @@ let replace r i elt =
 
 let copy r = 
   IntHashtbl.copy r
+
+let row_to_string row =
+  let s = fold_row 
+      (fun k e s -> 
+        if k = 0 then s
+        else
+        s^(string_of_int k)^" * "^(FT.to_string e)^"\t\t")
+      row "" in
+    s^"con : "^(FT.to_string (get_elt_row row 0))^"\n"

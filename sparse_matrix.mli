@@ -55,3 +55,6 @@ val replace : t -> int -> e -> unit
 
 (* make a copy of a specific row *)
 val copy : t -> t
+
+(* convert a row to string *)
+val row_to_string : t -> string

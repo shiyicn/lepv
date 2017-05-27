@@ -1,4 +1,5 @@
 module FT = Frac
+module SM = Sparse_matrix
 
 module StringHash : Cs.Hashable with type t = string = 
 struct

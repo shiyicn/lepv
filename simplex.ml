@@ -96,31 +96,29 @@ struct
     (* no available entering variable index *)
     if index = -1 then -1
     else
-      (print_string "Try to find a positive pivot\n";
       let aux a expr =
         (* get the entering variable coefficient e_i *)
         let e_i = SM.get_elt_row expr index in
-        (*print_string ((FT.to_string e_i)^"\n");*)
-        match FT.get_sign e_i with
-        (* make sure that the entering variable coefficient is
-         * strictly positive
-         *)
-        | FT.Null| FT.Neg -> a
-        | FT.Pos ->
-          match a with
-          (* min ration, pivot index, current row index *)
-          | (ratio, i, ic) ->
+        match a with
+        (* min ration, pivot index, current row index *)
+        | (ratio, i, ic) -> 
+          match FT.get_sign e_i with
+          (* make sure that the entering variable coefficient is
+          * strictly positive
+          *)
+          | FT.Null| FT.Neg -> (ratio, i, ic+1)
+          | FT.Pos ->
             let const = SM.get_elt_row expr 0 in
             let ratio' = FT.(const / e_i) in
             match FT.get_sign FT.(ratio' - ratio) with
-            | FT.Neg -> (ratio', ic, ic+1)
+            | FT.Neg|FT.Null -> (ratio', ic, ic+1)
             | _ -> a in
       let (_, i, _) = SM.fold_left aux (snd tab) (FT.max_frac, -1, 0) in
       (* for an entering variable, no pivots to choose, 
        * unboundedness occurs *)
       if i = -1 then
         raise Unboundedness
-      else i)
+      else Printf.printf "Found a positive pivot row : %d\n" i;i
 
   (* pivot operation
    * t : canoical table with form
@@ -206,13 +204,7 @@ struct
 
   (* expression to string function *)
   let expr_to_string (row : SM.t) = 
-    let s = SM.fold_row 
-      (fun k e s -> 
-        if k = 0 then s
-        else
-        s^(string_of_int k)^" * "^(FT.to_string e)^"\t\t")
-      row "" in
-    s^"con : "^(FT.to_string (SM.get_elt_row row 0))^"\n"
+    SM.row_to_string row
 
   let print_program (tab : t) = 
     let aux flag row =
