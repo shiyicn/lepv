@@ -6,6 +6,8 @@ val zero : t
 
 val min_frac : t
 
+val max_frac : t
+
 val convert : int array -> t array
 
 val to_string : t -> string

@@ -17,6 +17,8 @@ type m = t array
 
 exception DivideZero
 
+let empty = IntHashtbl.create 0
+
 let get_elt_row r i =
   try
     IntHashtbl.find r i
@@ -82,8 +84,14 @@ let find_neg (r : t) =
    with FoundNegIndex i -> index := i; Printf.printf "negative index found : %d\n" i);
   !index
 
-let iter f (r : t) =
+let iter_row f (r : t) =
   IntHashtbl.iter f r
+
+let fold_row f (r : t) e = 
+  IntHashtbl.fold f r e
+
+let iteri f (matrix : m) =
+  Array.iteri f matrix
 
 let fold_left f (matrix : m) a =
   Array.fold_left f a matrix

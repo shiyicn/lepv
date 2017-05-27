@@ -8,6 +8,9 @@ type t
 (* matrix type m *)
 type m = t array
 
+(* empty row *)
+val empty : t
+
 (* get element in a row *)
 val get_elt_row : t -> int -> e
 
@@ -36,9 +39,15 @@ val add_element : t -> int -> e -> unit
 val find_neg : t -> int
 
 (* iterator for all elements in a row *)
-val iter : (int -> e -> unit) -> t -> unit
+val iter_row : (int -> e -> unit) -> t -> unit
 
 (* fold over all elements in a row *)
+val fold_row : (int -> e -> 'a -> 'a) -> t -> 'a -> 'a
+
+(* iteri for a sparse matrix *)
+val iteri : (int -> t -> unit) -> m -> unit
+
+(* fold over all elements in a matrix *)
 val fold_left : ('a -> t -> 'a) -> m -> 'a -> 'a
 
 (* replace an element_index with another element *)

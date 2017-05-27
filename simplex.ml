@@ -72,7 +72,7 @@ struct
           SM.add_element obj' (2*i-1) a;
           SM.add_element obj' (2*i) (FT.neg a)
         | FT.Null -> () in
-    SM.iter aux obj; obj'
+    SM.iter_row aux obj; obj'
 
   (* construct a linear program according to
    * an objective and some expressions
@@ -87,24 +87,40 @@ struct
     match tab with
     | (obj, _ ) -> SM.find_neg obj
 
-  (* find new pivot index *)
-  let find_pivot (tab : t) index =
+  
+  exception Unboundedness
+  (* find a pivot index with strict positive entering
+   * variable coefficient
+   *)
+  let find_pos_pivot (tab : t) index =
+    (* no available entering variable index *)
     if index = -1 then -1
     else
+      (print_string "Try to find a positive pivot\n";
       let aux a expr =
+        (* get the entering variable coefficient e_i *)
         let e_i = SM.get_elt_row expr index in
-        if e_i = FT.zero then a
-        else
+        (*print_string ((FT.to_string e_i)^"\n");*)
+        match FT.get_sign e_i with
+        (* make sure that the entering variable coefficient is
+         * strictly positive
+         *)
+        | FT.Null| FT.Neg -> a
+        | FT.Pos ->
           match a with
+          (* min ration, pivot index, current row index *)
           | (ratio, i, ic) ->
             let const = SM.get_elt_row expr 0 in
             let ratio' = FT.(const / e_i) in
             match FT.get_sign FT.(ratio' - ratio) with
-            | FT.Pos -> (ratio', ic, ic+1)
-            | _ -> a
-      in
-      let (_, i, _) = SM.fold_left aux (snd tab) (FT.min_frac, -1, 0)
-      in i
+            | FT.Neg -> (ratio', ic, ic+1)
+            | _ -> a in
+      let (_, i, _) = SM.fold_left aux (snd tab) (FT.max_frac, -1, 0) in
+      (* for an entering variable, no pivots to choose, 
+       * unboundedness occurs *)
+      if i = -1 then
+        raise Unboundedness
+      else i)
 
   (* pivot operation
    * t : canoical table with form
@@ -124,9 +140,9 @@ struct
       (* transform firstly r' to e*r' *)
       SM.times_const r' e; SM.sub row r'
 
-  (*first use pivot function, 
-  *then use pivot_exprs function, 
-  *for an elimination of the exprs*)
+  (* first use pivot function, 
+   * then use pivot_exprs function, 
+   * for an elimination of the exprs *)
   let pivot_exprs (tab: t) i j = 
     match tab with
     | (obj, exprs) ->
@@ -150,7 +166,7 @@ struct
        * index
        *)
       let aux expr =
-        SM.iter 
+        SM.iter_row
           (fun i e -> 
              try
                let n = IntHashtbl.find count i in
@@ -158,8 +174,8 @@ struct
              with Not_found -> IntHashtbl.add count i 0)
           expr in
       (* iterate all elements in expressions : exprs and 
-      * objective function : obj
-      *)
+       * objective function : obj
+       *)
       Array.iter aux exprs; aux obj;
       (*only preserve the basic variables*)
       let aux i e = 
@@ -173,26 +189,70 @@ struct
             | _ -> ()
           with Not_found -> raise (LackConstraints i) in
       try
-        SM.iter aux obj; true
+        SM.iter_row aux obj; true
       with
       | NegCoeff -> Printf.printf "Negtive coefficient exists.\n"; false
       | NullElement -> Printf.printf "Null element should not appear in sparse row.\n"; false
       | LackConstraints i -> Printf.printf "Lack constraints for variable : %d" i;false
 
+  (* get solution for the objective *)
   let get_solution (tab : t) =
     match tab with
     | (obj, exprs) ->
       SM.get_elt_row obj 0
   
+  (* no feasible solution exception *)
+  exception NoFeasibleSolution
+
+  (* expression to string function *)
+  let expr_to_string (row : SM.t) = 
+    let s = SM.fold_row 
+      (fun k e s -> 
+        if k = 0 then s
+        else
+        s^(string_of_int k)^" * "^(FT.to_string e)^"\t\t")
+      row "" in
+    s^"con : "^(FT.to_string (SM.get_elt_row row 0))^"\n"
+
+  let print_program (tab : t) = 
+    let aux flag row =
+      Printf.printf flag; Printf.printf "\t\t%s" (expr_to_string row) in
+    match tab with
+    | (obj, exprs) ->
+      aux "Obj" obj;
+      SM.iteri 
+        (fun i row ->
+          print_string ("Row : "^(string_of_int i)); aux "" row)
+        exprs
+
+  (* solve standardly formed linear program *)
   let rec solve (tab : t) = 
-    if is_solution tab then
-      get_solution tab
-    else
-      (* get entering variable index *)
-      let j = pick_neg tab in
-      let i = find_pivot tab j in
+    (* print linear program for debugging *)
+    print_program tab;
+    (* get entering variable index *)
+    let j = pick_neg tab in
+    match j with
+    (* no entering variable to choose *)
+    | -1 ->
+      (* check whether it's a feasible solution
+       * if feasible then produce the solution
+       *)
+      if is_solution tab then get_solution tab
+      else raise NoFeasibleSolution
+    | _ ->
+      (* pick a pivot with strict positive entering
+       * variable coefficient
+       *)
+      let i = find_pos_pivot tab j in
+      (* perform a pivot operation for all expressions
+       * and the objective
+       *)
       pivot_exprs tab i j; solve tab
-  
-  let f obj exprs vars = solve (cons_program obj exprs vars)
+
+  (* the final invariants deducer *)
+  let inv_deduce obj exprs vars = 
+    try
+      solve (cons_program obj exprs vars)
+    with Unboundedness -> FT.max_frac
 
 end

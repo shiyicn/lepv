@@ -3,6 +3,7 @@ module FM = Fourier_motzkin.Elimination
 module FT = Frac
 module Solver = Simplex.SimplexSolver
 module SM = Sparse_matrix
+
 (*
 let q = ST.read_prog "prog.txt"
 let st = ST.cons_prog q
@@ -19,27 +20,16 @@ let inv' =
     | _ -> raise Test;;
 *)
 
-let row = SM.create 10;;
+let obj = SM.create 10;;
+let exprs = Array.make 2 SM.empty;;
+exprs.(0)<-SM.create 10;
+exprs.(1)<-SM.create 10;
 
-SM.add_element row 1 (4, 5);;
-SM.add_element row 3 (7, 8);;
+SM.add_element obj 1 (-1,1); SM.add_element obj 2 (-1, 1);
+SM.add_element exprs.(0) 1 (2, 1); SM.add_element exprs.(0) 2 (1, 1);
+SM.add_element exprs.(0) 3 (1, 1); SM.add_element exprs.(0) 0 (4, 1);
+SM.add_element exprs.(1) 1 (1, 1); SM.add_element exprs.(1) 2 (2, 1);
+SM.add_element exprs.(1) 4 (1, 1); SM.add_element exprs.(1) 0 (3, 1);
+let tab = obj, exprs in
 
-SM.times_const row (2, 4);;
-
-SM.div_const row (2, 4);;
-
-print_string (SM.to_string row);;
-
-let row' = SM.create 10;;
-
-SM.add_element row' 2 (3, 8);SM.add_element row' 11 (5, 8);;
-print_string (SM.to_string row');;
-
-SM.add row row';;
-
-print_string (SM.to_string row);;
-
-let a = FT.((5, 2) / (10, 3));;
-
-print_string ((FT.to_string a)^"\n");;
-(*List.map (fun a -> FT.print_array a) (fst inv');;*)
+Solver.solve tab;;

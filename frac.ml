@@ -6,6 +6,7 @@ type sign =
 let zero = (0, 1)
 
 let min_frac = (min_int, 1)
+let max_frac = (max_int, 1)
 
 (* convert an integer array to fraction array *)
 let convert (a : int array) = 
