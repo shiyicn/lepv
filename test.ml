@@ -4,22 +4,23 @@ module FT = Frac
 module Solver = Simplex.SimplexSolver
 module SM = Sparse_matrix
 
-(*
 let q = ST.read_prog "prog.txt"
 let st = ST.cons_prog q
 
-let t = match st with
-| (_, _, t) -> t
-
-exception Test
+exception Test;;
 
 let inv' = 
-    match t with
-    | ST.Node (hd::tl, inv) ->
-        FM.eliminate (snd hd) (fst hd)
-    | _ -> raise Test;;
-*)
+    match st with
+    | (_, _, t) ->
+        match t with
+        | ST.Node (hd::tl, inv) ->
+            print_string "print elimination product :\n";
+            let a = FM.eliminate (snd hd) (fst hd) in
+            List.iter (fun a -> print_string (SM.row_to_string a)) (fst a)
+        | _ -> raise Test;;
 
+
+(*
 let obj = SM.create 10;;
 let exprs = Array.make 3 SM.empty;;
 exprs.(0)<-SM.create 10;
@@ -36,3 +37,4 @@ SM.add_element exprs.(2) 5 (1, 1);
 let tab = obj, exprs in
 
 Solver.solve tab
+*)

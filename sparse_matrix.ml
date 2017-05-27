@@ -17,7 +17,7 @@ type m = t array
 
 exception DivideZero
 
-let empty = IntHashtbl.create 0
+let empty () = IntHashtbl.create 5
 
 let get_elt_row r i =
   try
@@ -102,8 +102,15 @@ let fold_left f (matrix : m) a =
 let replace r i elt =
   IntHashtbl.replace r i elt
 
+let neg r i =
+  let elt = FT.neg (get_elt_row r i) in
+  IntHashtbl.replace r i elt
+
 let copy r = 
   IntHashtbl.copy r
+
+let remove r i = 
+  IntHashtbl.remove r i
 
 let row_to_string row =
   let s = fold_row 

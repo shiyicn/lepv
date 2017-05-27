@@ -33,8 +33,9 @@ struct
    * other elements are stored in other index *)
   (* define single transformation for an expression*)
   let ex_trans expr ex_in =
+    (* create a new expression *)
     let expr' = SM.create 10 in
-    let sign_c = Frac.get_sign expr.(0) in (* const coefficient sign -- sign_c*)
+    let sign_c = Frac.get_sign (SM.get_elt_row expr 0) in (* const coefficient sign -- sign_c*)
     let aux i a = 
       if i = 0 then SM.add_element expr' 0 (FT.abs a) (* convert const to be non-negative*)
       else
@@ -47,7 +48,7 @@ struct
           SM.add_element expr' (2*i-1) (FT.neg a);
           SM.add_element expr' (2*i) a
         | FT.Null -> () in
-    Array.iteri aux expr;
+    SM.iter_row aux expr;
     (* processus 2 and 1*)
     if sign_c = FT.Neg then SM.add_element expr' ex_in (1, 1)
     else SM.add_element expr' ex_in (-1, 1)
@@ -86,7 +87,6 @@ struct
   let pick_neg (tab:t) = 
     match tab with
     | (obj, _ ) -> SM.find_neg obj
-
   
   exception Unboundedness
   (* find a pivot index with strict positive entering

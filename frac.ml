@@ -8,10 +8,6 @@ let zero = (0, 1)
 let min_frac = (min_int, 1)
 let max_frac = (max_int, 1)
 
-(* convert an integer array to fraction array *)
-let convert (a : int array) = 
-  Array.map (fun a -> (a, 1)) a
-
 (* convert a fraction array to string *)
 let to_string a = (string_of_int (fst a))^"/"^(string_of_int (snd a))
 
@@ -77,5 +73,12 @@ let abs f =
 
 let com f1 f2 =
   get_sign (sub f1 f2)
+
+let int_to_frac i =
+  (i, 1)
+
+(* convert an integer array to fraction array *)
+let convert (a : int array) = 
+  Array.map int_to_frac a
 
 let (+), (-), ( * ), (/) = add, sub, times, div

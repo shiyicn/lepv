@@ -1,5 +1,6 @@
 module ST = Tree.SyntaxTree
 module FT = Frac
+module SM = Sparse_matrix
 
 module Elimination = 
 struct
@@ -13,7 +14,7 @@ struct
   let is_inversible (instr : ST.instr) = 
     match instr with
     | ST.Aff (i, expr) ->
-      if FT.get_sign expr.(i) = FT.Null then false else true
+      if FT.get_sign (SM.get_elt_row expr i) = FT.Null then false else true
     (* no affectation in Loop or Condit *)
     | _ -> raise NoAffEliminate
 
@@ -24,35 +25,44 @@ struct
     | ST.Aff (i, e) ->
 
       if is_inversible instr then
-        let t = FT.neg e.(i) in
-        let e' = e.(i) <- (-1, 1); Array.map (fun a -> FT.div a t) e in
+        (* get the negation of variable i *)
+        let t = FT.neg (SM.get_elt_row e i) in
+        (* transform the row; replace variable i with (-1, 1)
+         * divid every variable coefficient with t
+         *)
+        let () = SM.replace e i (-1, 1); SM.div_const e t in
         (* eliminate ancient xi with xi' in the affectation *)
         let aux i e a = 
-          let e' = Array.map (FT.times a.(i)) e in
-          a.(i)<-FT.zero; Array.map2 FT.add a e'
-        in (List.map (aux i e') inv), instr
+          (* firstly make a copy of e to avoid changing original e *)
+          let e' = SM.copy e in
+          let () = SM.times_const e' (SM.get_elt_row a i) in
+          SM.remove a i; SM.add a e' in
+        (* trans every expression in inv *)
+        ignore(List.iter (aux i e) inv); inv, instr
       else
         (* leq stores expr <= xi; geq stores expr >= xi; other stores expr in
            which there's no xi *)
         let aux i s expr =
-          let e = expr.(i) in
+          let e = SM.get_elt_row expr i in
           let sign = FT.get_sign e in
           match sign with
           | FT.Null -> {leq = s.leq; geq = s.geq; other = expr::s.other}
           | _ -> 
-            let expr' = (Array.map (fun x -> FT.div x (FT.neg e)) expr) in
-            expr'.(i) <- FT.zero; 
+            SM.div_const expr (FT.neg e); SM.remove expr i; 
             if sign = FT.Neg then
-              {leq = s.leq; geq = expr'::s.geq; other = s.other}
+              {leq = s.leq; geq = expr::s.geq; other = s.other}
             else
-              {leq = expr'::s.leq; geq = s.geq; other = s.other}
+              {leq = expr::s.leq; geq = s.geq; other = s.other}
         in
 
         let es = List.fold_left (aux i) empty inv in
 
         (* generate |leq| * |geq| new invariants *)
         let aux leq l e =
-          List.fold_left (fun a b -> (Array.map2 FT.sub e b)::a) l leq in
+          List.fold_left
+            (* make a copy of e, avoid destroying original e *)
+            (fun a b -> let e' = SM.copy e in (SM.sub e' b); e'::a) 
+            l leq in
         let l' = List.fold_left (aux es.leq) [] es.geq in
         (l'@es.other), instr
 

@@ -39,7 +39,7 @@ struct
     | Num| And| Cond| Loop | Blank
     | Comma| Curl| Curr| Parl| Parr
 
-  type expr = FT.t array
+  type expr = SM.t
   type inv = expr list
 
   type instr =
@@ -149,21 +149,22 @@ struct
     if Queue.is_empty q then raise EmptyQueue
     else if fst (Queue.peek q) = Curr then l
     else
-      let ar = Array.make (VarHashtbl.length htl + 1) 0 in
-
+      (* initialize an empty expression *)
+      let ar = SM.empty () in
       let rec aux q = 
         match Queue.pop q with
-        | (Num, s) -> let i = aux q in (ar.(i) <- (int_of_string s)); i
+        (* replace the index element in a row *)
+        | (Num, s) -> let i = aux q in (SM.replace ar i (int_of_string s, 1)); i
         | (Op, s) -> let i = aux q in
-          if s = "-" then (ar.(i) <- -ar.(i);0)
+          if s = "-" then ( SM.neg ar i; 0)
           else if s = "+" then 0 else if s = "*" then i else raise(ExpectSyntax "Operator is expected")
-        | (Var, s) -> ignore(aux q); let i = VarHashtbl.find htl s in ar.(i) <- 1; i
+        | (Var, s) -> ignore(aux q); let i = VarHashtbl.find htl s in SM.replace ar i (1, 1); i
         | (Curr, _)| (Pun, _)| (Com, _) -> 0
         | (_, s) -> raise (ExpectSyntax ("Invalid syntax : "^s^" in expr construction.\n"))
       in
 
-      ignore(aux q);(*print basic expression info *)FT.print_array (FT.convert ar);
-      (FT.convert ar)::l
+      ignore(aux q);(*print basic expression info *)print_string (SM.to_string ar);
+      ar::l
 
   (*build invariant
     Ex : expr0 >= 0 & expr1 >= 0 & ... & exprl >= 0 -> expr list
