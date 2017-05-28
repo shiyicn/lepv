@@ -158,8 +158,12 @@ struct
         | (Num, s) -> let i = aux q in (SM.replace ar i (int_of_string s, 1)); i
         | (Op, s) -> let i = aux q in
           if s = "-" then ( SM.neg ar i; 0)
-          else if s = "+" then 0 else if s = "*" then i else raise(ExpectSyntax "Operator is expected")
-        | (Var, s) -> ignore(aux q); let i = VarHashtbl.find htl s in SM.replace ar i (1, 1); i
+          else if s = "+" then 0
+          else if s = "*" then i
+          else raise(ExpectSyntax "Operator is expected")
+        | (Var, s) -> 
+          ignore(aux q);
+          let i = VarHashtbl.find htl s in SM.replace ar i (1, 1); i
         | (Curr, _)| (Pun, _)| (Com, _) -> 0
         | (_, s) -> raise (ExpectSyntax ("Invalid syntax : "^s^" in expr construction.\n"))
       in

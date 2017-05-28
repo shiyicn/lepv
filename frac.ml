@@ -65,7 +65,9 @@ let get_sign f =
   match f with
   | (n, d) ->
     assert (d > 0);
-    if n > 0 then Pos else if n < 0 then Neg else Null
+    if n > 0 then Pos
+    else if n < 0 then Neg
+    else Null
 
 let abs f =
   match f with

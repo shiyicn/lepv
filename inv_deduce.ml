@@ -77,6 +77,7 @@ let rec inv_deduce (inv : ST.inv) (instr : ST.instr) (inv' : ST.inv) vars =
             | (exprs, FM.None) ->
                 let exprs' = list_to_array exprs in
                 Solver.trans exprs' vars
+        in
         let aux res obj =
             if res then
                 inv_to_obj exprs obj vars

@@ -3,6 +3,7 @@ module FM = Fourier_motzkin.Elimination
 module FT = Frac
 module Solver = Simplex.SimplexSolver
 module SM = Sparse_matrix
+module Deducer = Inv_deduce
 
 let q = ST.read_prog "prog.txt"
 let st = ST.cons_prog q
