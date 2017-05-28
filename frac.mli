@@ -10,6 +10,8 @@ val max_frac : t
 
 val convert : int array -> t array
 
+val int_to_frac : int -> t
+
 val to_string : t -> string
 
 val print_array : t array -> unit

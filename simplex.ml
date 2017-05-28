@@ -33,31 +33,43 @@ struct
    * other elements are stored in other index *)
   (* define single transformation for an expression*)
   let ex_trans expr ex_in =
+    (*print_string "trans an exprssion : ";ST.print_expr expr;*)
+    (* create a new expression *)
     let expr' = SM.create 10 in
-    let sign_c = Frac.get_sign expr.(0) in (* const coefficient sign -- sign_c*)
+    (* const coefficient sign -- sign_c*)
+    let sign_c = Frac.get_sign (SM.get_elt_row expr 0) in
     let aux i a = 
-      if i = 0 then SM.add_element expr' 0 (FT.abs a) (* convert const to be non-negative*)
+      (* convert const to be non-negative*)
+      if i = 0 then SM.add_element expr' 0 (FT.abs a)
       else
         match sign_c with
         (* processus 3 *)
         | FT.Neg -> 
           SM.add_element expr' (2*i-1) a;
           SM.add_element expr' (2*i) (FT.neg a)
-        | FT.Pos -> 
+        | FT.Null| FT.Pos -> 
           SM.add_element expr' (2*i-1) (FT.neg a);
-          SM.add_element expr' (2*i) a
-        | FT.Null -> () in
-    Array.iteri aux expr;
-    (* processus 2 and 1*)
-    if sign_c = FT.Neg then SM.add_element expr' ex_in (1, 1)
-    else SM.add_element expr' ex_in (-1, 1)
+          SM.add_element expr' (2*i) a in
+    SM.iter_row aux expr;
+    (* processus 2 and 1
+     * in our case, we fix all expression to form
+     * expr >= 0 with a constant in expr
+     *)
+    if sign_c = FT.Pos || sign_c = FT.Null then 
+      SM.add_element expr' ex_in (1, 1)
+    else
+      SM.add_element expr' ex_in (-1, 1)
     ;expr'
 
   (* standardise expr array *)
   let trans tab htl= 
     (* find appropriate len for variables*)
     let len = ST.get_var_size htl  in
-    Array.mapi (fun i a -> ex_trans a (2*len-1+i)) tab
+    let res = Array.mapi (fun i a -> ex_trans a (2*len+1+i)) tab in
+    (* do some prints *)
+    print_string "After trans : \n"; ST.print_expr_array res;
+    print_char '\n';
+    res
 
   (* transform objective to simplex standard form *)
   let max obj =
@@ -73,6 +85,16 @@ struct
           SM.add_element obj' (2*i) (FT.neg a)
         | FT.Null -> () in
     SM.iter_row aux obj; obj'
+  
+  exception NotAffectation
+
+  let trans_affectation a = 
+    match a with
+    | ST.Aff (i, aff) -> 
+      SM.add_element aff i (-1, 1);
+      let aff' = ex_trans aff max_int in
+      SM.remove aff' max_int; aff'
+    | _ -> raise NotAffectation
 
   (* construct a linear program according to
    * an objective and some expressions
@@ -86,7 +108,6 @@ struct
   let pick_neg (tab:t) = 
     match tab with
     | (obj, _ ) -> SM.find_neg obj
-
   
   exception Unboundedness
   (* find a pivot index with strict positive entering
@@ -117,7 +138,7 @@ struct
       (* for an entering variable, no pivots to choose, 
        * unboundedness occurs *)
       if i = -1 then
-        raise Unboundedness
+        (Printf.printf "Unable to eliminate index : %d \n" i;raise Unboundedness)
       else Printf.printf "Found a positive pivot row : %d\n" i;i
 
   (* pivot operation
@@ -180,7 +201,7 @@ struct
         match FT.get_sign e with
         | FT.Neg -> raise NegCoeff
         | FT.Null -> raise NullElement
-        | FT.Pos ->
+        | FT.Pos -> 
           try
             match IntHashtbl.find count i with
             | 1 -> raise (LackConstraints i)
@@ -229,8 +250,7 @@ struct
       (* check whether it's a feasible solution
        * if feasible then produce the solution
        *)
-      if is_solution tab then get_solution tab
-      else raise NoFeasibleSolution
+      get_solution tab
     | _ ->
       (* pick a pivot with strict positive entering
        * variable coefficient
@@ -242,9 +262,9 @@ struct
       pivot_exprs tab i j; solve tab
 
   (* the final invariants deducer *)
-  let inv_deduce obj exprs vars = 
+  let inv_deduce obj exprs = 
     try
-      solve (cons_program obj exprs vars)
+      solve (obj, exprs)
     with Unboundedness -> FT.max_frac
-
+  
 end

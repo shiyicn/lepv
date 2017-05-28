@@ -3,23 +3,14 @@ module FM = Fourier_motzkin.Elimination
 module FT = Frac
 module Solver = Simplex.SimplexSolver
 module SM = Sparse_matrix
+module Deducer = Inv_deduce
 
-(*
 let q = ST.read_prog "prog.txt"
 let st = ST.cons_prog q
 
-let t = match st with
-| (_, _, t) -> t
+let res = Deducer.deducer st
 
-exception Test
-
-let inv' = 
-    match t with
-    | ST.Node (hd::tl, inv) ->
-        FM.eliminate (snd hd) (fst hd)
-    | _ -> raise Test;;
-*)
-
+(*
 let obj = SM.create 10;;
 let exprs = Array.make 3 SM.empty;;
 exprs.(0)<-SM.create 10;
@@ -36,3 +27,4 @@ SM.add_element exprs.(2) 5 (1, 1);
 let tab = obj, exprs in
 
 Solver.solve tab
+*)

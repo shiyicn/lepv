@@ -9,7 +9,7 @@ type t
 type m = t array
 
 (* empty row *)
-val empty : t
+val empty : unit -> t
 
 (* get element in a row *)
 val get_elt_row : t -> int -> e
@@ -58,3 +58,9 @@ val copy : t -> t
 
 (* convert a row to string *)
 val row_to_string : t -> string
+
+(* convert the sign of the element with index i in a row *)
+val neg : t -> int -> unit
+
+(* remove variable i *)
+val remove : t -> int -> unit

@@ -39,7 +39,7 @@ struct
     | Num| And| Cond| Loop | Blank
     | Comma| Curl| Curr| Parl| Parr
 
-  type expr = FT.t array
+  type expr = SM.t
   type inv = expr list
 
   type instr =
@@ -50,7 +50,8 @@ struct
     | Empty
     | Node of (inv * instr) list * inv
 
-  type prog = string VarHashtbl.t * int * tree
+  (* variables, variables capacity, program body *)
+  type prog = int VarHashtbl.t * int * tree
 
   type token = syntax * string
 
@@ -113,11 +114,37 @@ struct
         with End_of_file -> x
       in let x = aux x in close_in stream; x
     with e -> close_in stream; raise e
+  
+  let print_expr expr =
+    print_string (SM.to_string expr)
+
+  let print_inv (inv : inv) =
+      let aux i expr =
+        Printf.printf "Inv : %d\t---\t" i;
+        print_expr expr in
+      List.iteri aux inv; print_string "\n"
+
+  let print_instr (instr : instr) =
+      match instr with
+      | Aff (i, expr) ->
+        Printf.printf "Aff : \t%d=\t" i; print_expr expr
+      | While (expr, block) ->
+        print_string "A while loop"
+      | Condit (expr, b1, b2) ->
+        print_string "A condition branch"
+  
+  let print_expr_array (exprs : expr array) =
+      let aux i expr =
+      Printf.printf "Inv : %d\t---\t" i;
+      print_expr expr in
+      Array.iteri aux exprs; print_string "\n"
 
   (* lexical analyser for annoted program
      Ex : prog_txt -> lexical token queue : syntax * string
   *)
-  let read_prog fname = iofold f fname (Queue.create ())
+  let read_prog fname = 
+    Printf.printf "Construct a syntax tree from txt file : %s\n" fname;
+    iofold f fname (Queue.create ())
 
   exception EmptyQueue
   exception ExpectSyntax of string
@@ -149,21 +176,26 @@ struct
     if Queue.is_empty q then raise EmptyQueue
     else if fst (Queue.peek q) = Curr then l
     else
-      let ar = Array.make (VarHashtbl.length htl + 1) 0 in
-
+      (* initialize an empty expression *)
+      let ar = SM.empty () in
       let rec aux q = 
         match Queue.pop q with
-        | (Num, s) -> let i = aux q in (ar.(i) <- (int_of_string s)); i
+        (* replace the index element in a row *)
+        | (Num, s) -> let i = aux q in (SM.replace ar i (int_of_string s, 1)); i
         | (Op, s) -> let i = aux q in
-          if s = "-" then (ar.(i) <- -ar.(i);0)
-          else if s = "+" then 0 else if s = "*" then i else raise(ExpectSyntax "Operator is expected")
-        | (Var, s) -> ignore(aux q); let i = VarHashtbl.find htl s in ar.(i) <- 1; i
+          if s = "-" then ( SM.neg ar i; 0)
+          else if s = "+" then 0
+          else if s = "*" then i
+          else raise(ExpectSyntax "Operator is expected")
+        | (Var, s) -> 
+          ignore(aux q);
+          let i = VarHashtbl.find htl s in SM.replace ar i (1, 1); i
         | (Curr, _)| (Pun, _)| (Com, _) -> 0
         | (_, s) -> raise (ExpectSyntax ("Invalid syntax : "^s^" in expr construction.\n"))
       in
 
-      ignore(aux q);(*print basic expression info *)FT.print_array (FT.convert ar);
-      (FT.convert ar)::l
+      ignore(aux q);(*print basic expression info *)print_string (SM.to_string ar);
+      ar::l
 
   (*build invariant
     Ex : expr0 >= 0 & expr1 >= 0 & ... & exprl >= 0 -> expr list
@@ -190,7 +222,7 @@ struct
       let () = assert (fst (Queue.pop q) = Curl) in
       let block = cons_tree q htl in
       let () = assert (fst (Queue.pop q) = Curr) in
-      block 
+      block
     in
 
     if Queue.is_empty q then raise EmptyQueue
@@ -236,7 +268,7 @@ struct
   block"
   -> prog : VarHashtbl.t * int * tree
   *)
-  let cons_prog (q : (syntax * string) Queue.t) =
+  let cons_prog (q : (syntax * string) Queue.t) : prog =
     if Queue.is_empty q then raise EmptyQueue
     else
       let htl = VarHashtbl.create 10 in
