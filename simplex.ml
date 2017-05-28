@@ -33,6 +33,7 @@ struct
    * other elements are stored in other index *)
   (* define single transformation for an expression*)
   let ex_trans expr ex_in =
+    (*print_string "trans an exprssion : ";ST.print_expr expr;*)
     (* create a new expression *)
     let expr' = SM.create 10 in
     (* const coefficient sign -- sign_c*)
@@ -46,10 +47,9 @@ struct
         | FT.Neg -> 
           SM.add_element expr' (2*i-1) a;
           SM.add_element expr' (2*i) (FT.neg a)
-        | FT.Pos -> 
+        | FT.Null| FT.Pos -> 
           SM.add_element expr' (2*i-1) (FT.neg a);
-          SM.add_element expr' (2*i) a
-        | FT.Null -> () in
+          SM.add_element expr' (2*i) a in
     SM.iter_row aux expr;
     (* processus 2 and 1
      * in our case, we fix all expression to form
@@ -63,7 +63,7 @@ struct
   let trans tab htl= 
     (* find appropriate len for variables*)
     let len = ST.get_var_size htl  in
-    let res = Array.mapi (fun i a -> ex_trans a (2*len-1+i)) tab in
+    let res = Array.mapi (fun i a -> ex_trans a (2*len+1+i)) tab in
     (* do some prints *)
     print_string "After trans : \n"; ST.print_expr_array res;
     print_char '\n';

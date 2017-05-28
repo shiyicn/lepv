@@ -65,7 +65,7 @@ let to_string r =
 let create n = IntHashtbl.create n
 
 let add_element r i (elt : e) =
-  if elt = FT.zero then Printf.printf "Zero is ignored!\n"
+  if elt = FT.zero then print_string "Zero is ignored!\n"
   else IntHashtbl.add r i elt
 
 exception FoundNegIndex of int
