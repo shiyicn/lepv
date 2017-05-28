@@ -8,19 +8,7 @@ module Deducer = Inv_deduce
 let q = ST.read_prog "prog.txt"
 let st = ST.cons_prog q
 
-exception Test;;
-
-(*
-let inv' = 
-    match st with
-    | (_, _, t) ->
-        match t with
-        | ST.Node (hd::tl, inv) ->
-            print_string "print elimination product :\n";
-            let a = FM.eliminate (snd hd) (fst hd) in
-            List.iter (fun a -> print_string (SM.row_to_string a)) (fst a)
-        | _ -> raise Test;;
-*)
+let res = Deducer.deducer st
 
 (*
 let obj = SM.create 10;;

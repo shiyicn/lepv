@@ -46,18 +46,18 @@ let add r1 r2 =
 
 let times_const r elt =
   if elt = FT.zero then IntHashtbl.clear r
-  else IntHashtbl.iter 
+  else IntHashtbl.iter
       (fun i e -> IntHashtbl.replace r i (FT.times e elt))
       r
 
 let div_const r elt =
   if elt = FT.zero then raise DivideZero
-  else IntHashtbl.iter 
+  else IntHashtbl.iter
       (fun i e -> IntHashtbl.replace r i (FT.div e elt))
       r
 
 let to_string r =
-  (IntHashtbl.fold 
+  (IntHashtbl.fold
      (fun i a b -> "("^(string_of_int i)^" , "^(FT.to_string a)^")\t"^b)
      r
      "")^"\n"
@@ -74,8 +74,8 @@ exception NullElementInSparseRow
 let find_neg (r : t) =
   let index = ref (-1) in
   (try
-     IntHashtbl.iter 
-       (fun i a -> 
+     IntHashtbl.iter
+       (fun i a ->
           (* skip constant index 0 *)
           if i = 0 then ()
           else
@@ -90,7 +90,7 @@ let find_neg (r : t) =
 let iter_row f (r : t) =
   IntHashtbl.iter f r
 
-let fold_row f (r : t) e = 
+let fold_row f (r : t) e =
   IntHashtbl.fold f r e
 
 let iteri f (matrix : m) =
@@ -106,15 +106,15 @@ let neg r i =
   let elt = FT.neg (get_elt_row r i) in
   IntHashtbl.replace r i elt
 
-let copy r = 
+let copy r =
   IntHashtbl.copy r
 
-let remove r i = 
+let remove r i =
   IntHashtbl.remove r i
 
 let row_to_string row =
-  let s = fold_row 
-      (fun k e s -> 
+  let s = fold_row
+      (fun k e s ->
         if k = 0 then s
         else
         s^(string_of_int k)^" * "^(FT.to_string e)^"\t\t")

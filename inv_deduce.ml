@@ -21,6 +21,7 @@ let reverse_expr e =
     let e' = SM.copy e in
     SM.div_const e' (-1, 1); e'
 
+(* convert a list to an array *)
 let list_to_array (l : 'a list) =
     match l with
     | [] -> [||]
@@ -64,12 +65,21 @@ let get_start_end block =
 let rec inv_deduce (inv : ST.inv) (instr : ST.instr) (inv' : ST.inv) vars =
     match instr with
     | ST.Aff (i, e) ->
+        (* print infos before transformation *)
+        print_string "Procede inv deduction for : \n";
+        print_string "Initial Inv : \n"; ST.print_inv inv;
+        Printf.printf "Affectation form : \t%d = " i; ST.print_expr e;
+        print_char '\n';
+        print_string "Inv to deduce : \n"; ST.print_inv inv';
+        print_char '\n';
         (* procede fourier motzkin elimination *)
         let inv_t = FM.eliminate instr inv in
+        ST.print_inv (fst inv_t);
         (* perform transformation for inv_t *)
         let exprs = 
             match inv_t with
             | (exprs, FM.Some ins) ->
+                print_string "Non-inversible case : \n";
                 let exprs' = list_to_array exprs in
                 let exprs_t = Solver.trans exprs' vars in
                 (* perform transform for affectation and  *)
@@ -78,29 +88,39 @@ let rec inv_deduce (inv : ST.inv) (instr : ST.instr) (inv' : ST.inv) vars =
                 let exprs' = list_to_array exprs in
                 Solver.trans exprs' vars
         in
+        print_string "Finish trans for inv\n\n";
         let aux res obj =
             if res then
-                inv_to_obj exprs obj vars
+                let obj' = SM.copy obj in
+                let thres = SM.get_elt_row obj 0 in
+                SM.remove obj' 0;
+                let min = Solver.solve (obj', exprs) in
+                match FT.get_sign FT.(min - thres) with
+                | FT.Pos| FT.Null -> true
+                | FT.Neg -> false
             else raise DeductionFault in
         List.fold_left aux true inv'
     | ST.Condit (e, b1, b2) ->
+        (* get the start and end invariant in block *)
         let inv2, inv3 = get_start_end b1 in
-        (* precede block deduction *)
-        block_deduce b1 vars &&
+        (* verify if post-condition *)
         inv_to_inv (e::inv) inv2 vars &&
         inv_to_inv inv3 inv' vars &&
+        (* precede block deduction *)
+        block_deduce b1 vars &&
         let inv2', inv3' = get_start_end b2 in
-        block_deduce b2 vars &&
+        (* verify else post-condition *)
         inv_to_inv ((reverse_expr e)::inv) inv2' vars &&
-        inv_to_inv inv3' inv' vars
+        inv_to_inv inv3' inv' vars &&
+        block_deduce b2 vars
     | ST.While (e, b) -> 
         let inv2, inv3 = get_start_end b in
-        (* procede block deduction *)
-        block_deduce b vars &&
         inv_to_inv (e::inv) inv2 vars &&
         inv_to_inv ((reverse_expr e)::inv) inv' vars &&
         inv_to_inv (e::inv3) inv2 vars &&
-        inv_to_inv ((reverse_expr e)::inv3) inv' vars
+        inv_to_inv ((reverse_expr e)::inv3) inv' vars &&
+        (* procede block deduction *)
+        block_deduce b vars
 
 and block_deduce block vars = 
     match block with

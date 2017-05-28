@@ -63,7 +63,12 @@ struct
   let trans tab htl= 
     (* find appropriate len for variables*)
     let len = ST.get_var_size htl  in
-    Array.mapi (fun i a -> ex_trans a (2*len-1+i)) tab
+    let res = Array.mapi (fun i a -> ex_trans a (2*len-1+i)) tab in
+    (* do some prints *)
+    print_string "After trans : \n"; ST.print_expr_array res;
+    print_char '\n';
+    res
+
 
   (* transform objective to simplex standard form *)
   let max obj =
@@ -261,5 +266,5 @@ struct
     try
       solve (cons_program obj exprs vars)
     with Unboundedness -> FT.max_frac
-
+  
 end

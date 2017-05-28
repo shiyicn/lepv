@@ -30,6 +30,7 @@ struct
    * the instruction is not an affectation form.
    *)
   let eliminate (instr : ST.instr) (inv : ST.inv) : (ST.inv * t) =
+    print_string "FM eliminates instr and inv.\n";
     match instr with
     | ST.Aff (i, e) ->
 

@@ -51,7 +51,7 @@ struct
     | Node of (inv * instr) list * inv
 
   (* variables, variables capacity, program body *)
-  type prog = string VarHashtbl.t * int * tree
+  type prog = int VarHashtbl.t * int * tree
 
   type token = syntax * string
 
@@ -114,11 +114,37 @@ struct
         with End_of_file -> x
       in let x = aux x in close_in stream; x
     with e -> close_in stream; raise e
+  
+  let print_expr expr =
+    print_string (SM.to_string expr)
+
+  let print_inv (inv : inv) =
+      let aux i expr =
+        Printf.printf "Inv : %d\t---\t" i;
+        print_expr expr in
+      List.iteri aux inv; print_string "\n"
+
+  let print_instr (instr : instr) =
+      match instr with
+      | Aff (i, expr) ->
+        Printf.printf "Aff : \t%d=\t" i; print_expr expr
+      | While (expr, block) ->
+        print_string "A while loop"
+      | Condit (expr, b1, b2) ->
+        print_string "A condition branch"
+  
+  let print_expr_array (exprs : expr array) =
+      let aux i expr =
+      Printf.printf "Inv : %d\t---\t" i;
+      print_expr expr in
+      Array.iteri aux exprs; print_string "\n"
 
   (* lexical analyser for annoted program
      Ex : prog_txt -> lexical token queue : syntax * string
   *)
-  let read_prog fname = iofold f fname (Queue.create ())
+  let read_prog fname = 
+    Printf.printf "Construct a syntax tree from txt file : %s\n" fname;
+    iofold f fname (Queue.create ())
 
   exception EmptyQueue
   exception ExpectSyntax of string
@@ -196,7 +222,7 @@ struct
       let () = assert (fst (Queue.pop q) = Curl) in
       let block = cons_tree q htl in
       let () = assert (fst (Queue.pop q) = Curr) in
-      block 
+      block
     in
 
     if Queue.is_empty q then raise EmptyQueue
@@ -242,7 +268,8 @@ struct
   block"
   -> prog : VarHashtbl.t * int * tree
   *)
-  let cons_prog (q : (syntax * string) Queue.t) =
+  let cons_prog (q : (syntax * string) Queue.t) : prog =
+    print_string "Construct the program.\n######################\n";
     if Queue.is_empty q then raise EmptyQueue
     else
       let htl = VarHashtbl.create 10 in
@@ -253,5 +280,4 @@ struct
 
   let get_var_size htl =
     VarHashtbl.length htl
-
 end
