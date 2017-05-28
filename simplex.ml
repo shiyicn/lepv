@@ -55,8 +55,10 @@ struct
      * in our case, we fix all expression to form
      * expr >= 0 with a constant in expr
      *)
-    if sign_c = FT.Neg then SM.add_element expr' ex_in (1, 1)
-    else SM.add_element expr' ex_in (-1, 1)
+    if sign_c = FT.Pos || sign_c = FT.Null then 
+      SM.add_element expr' ex_in (1, 1)
+    else
+      SM.add_element expr' ex_in (-1, 1)
     ;expr'
 
   (* standardise expr array *)
@@ -68,7 +70,6 @@ struct
     print_string "After trans : \n"; ST.print_expr_array res;
     print_char '\n';
     res
-
 
   (* transform objective to simplex standard form *)
   let max obj =
@@ -200,7 +201,7 @@ struct
         match FT.get_sign e with
         | FT.Neg -> raise NegCoeff
         | FT.Null -> raise NullElement
-        | FT.Pos ->
+        | FT.Pos -> 
           try
             match IntHashtbl.find count i with
             | 1 -> raise (LackConstraints i)
@@ -249,8 +250,7 @@ struct
       (* check whether it's a feasible solution
        * if feasible then produce the solution
        *)
-      if is_solution tab then get_solution tab
-      else raise NoFeasibleSolution
+      get_solution tab
     | _ ->
       (* pick a pivot with strict positive entering
        * variable coefficient

@@ -33,11 +33,12 @@ let list_to_array (l : 'a list) =
 (* single inv to objective *)
 let inv_to_obj exprs obj vars= 
     (* remove constant in the objective function *)
-    let thres = SM.get_elt_row obj 0 in
+    let thres = FT.neg (SM.get_elt_row obj 0) in
     let obj' = SM.copy obj in
     (* remove constant in obj *)
     SM.remove obj' 0;
-    let min = (Solver.inv_deduce (Solver.max obj') exprs vars) in
+    (* the min value is the negation of max *)
+    let min = FT.neg (Solver.inv_deduce (Solver.max obj') exprs vars) in
     (* if min >= thres then this expression is included in
         * former one *)
     match FT.get_sign FT.(min - thres) with
@@ -54,6 +55,8 @@ let inv_to_inv inv inv' vars =
             inv_to_obj exprs obj vars
         else raise DeductionFault
     in 
+    print_string "Finished a deduction !\n";
+    print_string "############################################################\n";
     List.fold_left aux true inv'
 
 let get_start_end block =
@@ -88,18 +91,21 @@ let rec inv_deduce (inv : ST.inv) (instr : ST.instr) (inv' : ST.inv) vars =
                 let exprs' = list_to_array exprs in
                 Solver.trans exprs' vars
         in
-        print_string "Finish trans for inv\n\n";
+        print_string "Finished trans for inv\n\n";
         let aux res obj =
             if res then
                 let obj' = SM.copy obj in
-                let thres = SM.get_elt_row obj 0 in
+                let thres = FT.neg (SM.get_elt_row obj 0) in
                 SM.remove obj' 0;
-                let min = Solver.solve (obj', exprs) in
+                let min = FT.neg (Solver.solve ((Solver.max obj'), exprs)) in
                 match FT.get_sign FT.(min - thres) with
                 | FT.Pos| FT.Null -> true
                 | FT.Neg -> false
             else raise DeductionFault in
-        List.fold_left aux true inv'
+        let res = List.fold_left aux true inv' in
+        print_string "Finished a deduction with an affectation !\n";
+        print_string "############################################################\n";
+        res
     | ST.Condit (e, b1, b2) ->
         (* get the start and end invariant in block *)
         let inv2, inv3 = get_start_end b1 in
@@ -129,7 +135,9 @@ and block_deduce block vars =
     | ST.Node ((inv, instr)::tl, inv') -> 
         match tl with
         | [] ->
-            inv_deduce inv instr inv' vars
+            if not (inv_deduce inv instr inv' vars) then
+                raise DeductionFault
+            else true
         | (_inv, _)::tl' ->
             if inv_deduce inv instr _inv vars then
                 block_deduce (ST.Node (tl, inv')) vars
