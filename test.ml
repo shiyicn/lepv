@@ -9,6 +9,7 @@ let st = ST.cons_prog q
 
 exception Test;;
 
+(*
 let inv' = 
     match st with
     | (_, _, t) ->
@@ -18,7 +19,7 @@ let inv' =
             let a = FM.eliminate (snd hd) (fst hd) in
             List.iter (fun a -> print_string (SM.row_to_string a)) (fst a)
         | _ -> raise Test;;
-
+*)
 
 (*
 let obj = SM.create 10;;

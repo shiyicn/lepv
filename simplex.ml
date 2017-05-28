@@ -35,9 +35,11 @@ struct
   let ex_trans expr ex_in =
     (* create a new expression *)
     let expr' = SM.create 10 in
-    let sign_c = Frac.get_sign (SM.get_elt_row expr 0) in (* const coefficient sign -- sign_c*)
+    (* const coefficient sign -- sign_c*)
+    let sign_c = Frac.get_sign (SM.get_elt_row expr 0) in
     let aux i a = 
-      if i = 0 then SM.add_element expr' 0 (FT.abs a) (* convert const to be non-negative*)
+      (* convert const to be non-negative*)
+      if i = 0 then SM.add_element expr' 0 (FT.abs a)
       else
         match sign_c with
         (* processus 3 *)
@@ -49,7 +51,10 @@ struct
           SM.add_element expr' (2*i) a
         | FT.Null -> () in
     SM.iter_row aux expr;
-    (* processus 2 and 1*)
+    (* processus 2 and 1
+     * in our case, we fix all expression to form
+     * expr >= 0 with a constant in expr
+     *)
     if sign_c = FT.Neg then SM.add_element expr' ex_in (1, 1)
     else SM.add_element expr' ex_in (-1, 1)
     ;expr'
@@ -74,6 +79,16 @@ struct
           SM.add_element obj' (2*i) (FT.neg a)
         | FT.Null -> () in
     SM.iter_row aux obj; obj'
+  
+  exception NotAffectation
+
+  let trans_affectation a = 
+    match a with
+    | ST.Aff (i, aff) -> 
+      SM.add_element aff i (-1, 1);
+      let aff' = ex_trans aff max_int in
+      SM.remove aff' max_int; aff'
+    | _ -> raise NotAffectation
 
   (* construct a linear program according to
    * an objective and some expressions

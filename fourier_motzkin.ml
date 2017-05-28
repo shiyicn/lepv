@@ -10,6 +10,9 @@ struct
 
   exception NoAffEliminate
 
+  type t =
+    |Some of ST.instr | None
+
   (*check if an affectation is inversible*)
   let is_inversible (instr : ST.instr) = 
     match instr with
@@ -18,9 +21,15 @@ struct
     (* no affectation in Loop or Condit *)
     | _ -> raise NoAffEliminate
 
-  (*eliminate xi from invariant set inv and
-    return a new equivalent invariant set*)
-  let eliminate (instr : ST.instr) (inv : ST.inv) : (ST.inv * ST.instr) =
+  (* eliminate xi from invariant set inv and
+   * return a new equivalent invariant set, if
+   * it's a form of affectation this function
+   * returns inv_eliminated, and option form affectation.
+   * This depends on the inversibility of the affectation.
+   * On the other side, raise a non-affectation exception if
+   * the instruction is not an affectation form.
+   *)
+  let eliminate (instr : ST.instr) (inv : ST.inv) : (ST.inv * t) =
     match instr with
     | ST.Aff (i, e) ->
 
@@ -38,7 +47,7 @@ struct
           let () = SM.times_const e' (SM.get_elt_row a i) in
           SM.remove a i; SM.add a e' in
         (* trans every expression in inv *)
-        ignore(List.iter (aux i e) inv); inv, instr
+        ignore(List.iter (aux i e) inv); inv, None
       else
         (* leq stores expr <= xi; geq stores expr >= xi; other stores expr in
            which there's no xi *)
@@ -64,7 +73,7 @@ struct
             (fun a b -> let e' = SM.copy e in (SM.sub e' b); e'::a) 
             l leq in
         let l' = List.fold_left (aux es.leq) [] es.geq in
-        (l'@es.other), instr
+        (l'@es.other), Some instr
 
     |_ -> raise NoAffEliminate
 end

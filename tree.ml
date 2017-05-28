@@ -50,6 +50,7 @@ struct
     | Empty
     | Node of (inv * instr) list * inv
 
+  (* variables, variables capacity, program body *)
   type prog = string VarHashtbl.t * int * tree
 
   type token = syntax * string
@@ -248,4 +249,5 @@ struct
 
   let get_var_size htl =
     VarHashtbl.length htl
+
 end
