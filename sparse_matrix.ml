@@ -117,6 +117,6 @@ let row_to_string row =
       (fun k e s ->
         if k = 0 then s
         else
-        s^(string_of_int k)^" * "^(FT.to_string e)^"\t\t")
+        s^"("^(string_of_int k)^" , "^(FT.to_string e)^")\t")
       row "" in
     s^"con : "^(FT.to_string (get_elt_row row 0))^"\n"

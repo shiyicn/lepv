@@ -269,7 +269,6 @@ struct
   -> prog : VarHashtbl.t * int * tree
   *)
   let cons_prog (q : (syntax * string) Queue.t) : prog =
-    print_string "Construct the program.\n######################\n";
     if Queue.is_empty q then raise EmptyQueue
     else
       let htl = VarHashtbl.create 10 in

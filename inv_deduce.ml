@@ -3,6 +3,7 @@ module FT = Frac
 module SM = Sparse_matrix
 module FM = Fourier_motzkin.Elimination
 module Solver = Simplex.SimplexSolver
+module Printer = Print
 
 exception MalFormedBlock
 exception EmptyBlock
@@ -56,7 +57,7 @@ let inv_to_inv inv inv' vars =
         else raise DeductionFault
     in 
     print_string "Finished a deduction !\n";
-    print_string "############################################################\n";
+    Printer.dividing_line Printer.length_defaut '#';
     List.fold_left aux true inv'
 
 let get_start_end block =
@@ -88,6 +89,7 @@ let rec inv_deduce (inv : ST.inv) (instr : ST.instr) (inv' : ST.inv) vars =
                 (* perform transform for affectation and  *)
                 Array.append exprs_t [|(Solver.trans_affectation ins)|]
             | (exprs, FM.None) ->
+                print_string "Inversible case : \n";
                 let exprs' = list_to_array exprs in
                 Solver.trans exprs' vars
         in
@@ -104,7 +106,7 @@ let rec inv_deduce (inv : ST.inv) (instr : ST.instr) (inv' : ST.inv) vars =
             else raise DeductionFault in
         let res = List.fold_left aux true inv' in
         print_string "Finished a deduction with an affectation !\n";
-        print_string "############################################################\n";
+        Printer.dividing_line Printer.length_defaut '#';
         res
     | ST.Condit (e, b1, b2) ->
         (* get the start and end invariant in block *)
