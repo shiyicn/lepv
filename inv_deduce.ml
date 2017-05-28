@@ -34,20 +34,29 @@ let list_to_array (l : 'a list) =
 (* single inv to objective *)
 let inv_to_obj exprs obj vars= 
     (* remove constant in the objective function *)
+    print_string "Start a deduction from exprs to obj : \n";
     let thres = FT.neg (SM.get_elt_row obj 0) in
     let obj' = SM.copy obj in
     (* remove constant in obj *)
     SM.remove obj' 0;
     (* the min value is the negation of max *)
-    let min = FT.neg (Solver.inv_deduce (Solver.max obj') exprs vars) in
+    let min = FT.neg (Solver.inv_deduce (Solver.max obj') exprs) in
     (* if min >= thres then this expression is included in
         * former one *)
     match FT.get_sign FT.(min - thres) with
-    | FT.Pos| FT.Null -> true
+    | FT.Pos| FT.Null -> 
+        print_string "Finished a deduction from exprs to obj\n";
+        Printer.dividing_line Printer.length_defaut '-';true
     | _ -> false
 
 (* inv to inv deductioin *)
 let inv_to_inv inv inv' vars =
+    (* print infos before transformation *)
+    print_string "Procede inv deduction for : \n";
+    print_string "Initial Inv : \n"; ST.print_inv inv;
+    print_string "\n";
+    print_string "Inv to deduce : \n"; ST.print_inv inv';
+    print_char '\n';
     (* transform an invariant to standard form *)
     let inv_a = list_to_array inv in
     let exprs = Solver.trans inv_a vars in
@@ -55,10 +64,10 @@ let inv_to_inv inv inv' vars =
         if res then
             inv_to_obj exprs obj vars
         else raise DeductionFault
-    in 
-    print_string "Finished a deduction !\n";
-    Printer.dividing_line Printer.length_defaut '#';
-    List.fold_left aux true inv'
+    in
+    let res = List.fold_left aux true inv' in
+    print_string "Finished a inv to inv deduction";
+    Printer.dividing_line Printer.length_defaut '#'; res
 
 let get_start_end block =
     match block with
@@ -109,11 +118,14 @@ let rec inv_deduce (inv : ST.inv) (instr : ST.instr) (inv' : ST.inv) vars =
         Printer.dividing_line Printer.length_defaut '#';
         res
     | ST.Condit (e, b1, b2) ->
+        print_string "Start a condition section : \n";
         (* get the start and end invariant in block *)
         let inv2, inv3 = get_start_end b1 in
         (* verify if post-condition *)
+        print_string "Verification of if post-condition deduction : \n";
         inv_to_inv (e::inv) inv2 vars &&
-        inv_to_inv inv3 inv' vars &&
+        (print_string "Verification of else post-condition deduction : \n";
+        inv_to_inv inv3 inv' vars )&&
         (* precede block deduction *)
         block_deduce b1 vars &&
         let inv2', inv3' = get_start_end b2 in

@@ -138,7 +138,7 @@ struct
       (* for an entering variable, no pivots to choose, 
        * unboundedness occurs *)
       if i = -1 then
-        raise Unboundedness
+        (Printf.printf "Unable to eliminate index : %d \n" i;raise Unboundedness)
       else Printf.printf "Found a positive pivot row : %d\n" i;i
 
   (* pivot operation
@@ -262,9 +262,9 @@ struct
       pivot_exprs tab i j; solve tab
 
   (* the final invariants deducer *)
-  let inv_deduce obj exprs vars = 
+  let inv_deduce obj exprs = 
     try
-      solve (cons_program obj exprs vars)
+      solve (obj, exprs)
     with Unboundedness -> FT.max_frac
   
 end
