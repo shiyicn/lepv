@@ -110,6 +110,7 @@ struct
     | (obj, _ ) -> SM.find_neg obj
   
   exception Unboundedness
+  exception InvalidPivot
   (* find a pivot index with strict positive entering
    * variable coefficient
    *)
@@ -127,13 +128,24 @@ struct
           (* make sure that the entering variable coefficient is
           * strictly positive
           *)
-          | FT.Null| FT.Neg -> (ratio, i, ic+1)
+          | FT.Null -> (ratio, i, ic+1)
+          | FT.Neg -> 
+            (* if the constant is zero than we can also pick this negative
+             * index as pivot
+             *)
+            if (FT.get_sign (SM.get_elt_row expr 0)) = FT.Null then
+              match FT.get_sign ratio with
+              | FT.Null -> (ratio, i, ic+1)
+              | FT.Neg -> raise InvalidPivot
+              | FT.Pos -> (FT.zero, ic, ic+1)
+            else
+              (ratio, i, ic+1)
           | FT.Pos ->
             let const = SM.get_elt_row expr 0 in
             let ratio' = FT.(const / e_i) in
             match FT.get_sign FT.(ratio' - ratio) with
             | FT.Neg|FT.Null -> (ratio', ic, ic+1)
-            | _ -> a in
+            | _ -> (ratio, i, ic+1) in
       let (_, i, _) = SM.fold_left aux (snd tab) (FT.max_frac, -1, 0) in
       (* for an entering variable, no pivots to choose, 
        * unboundedness occurs *)
