@@ -19,5 +19,8 @@ let () =
     Printer.dividing_line Printer.length_defaut '#';
     print_string "\nConstructed program\n\n"
 
-(* try to verify all invariants in this program *)
+(* try to verify all invariants in this program
+ * deducer stops when we cannot deduce from an
+ * an invariant to another one
+ *)
 let res = Deducer.deducer st
