@@ -62,6 +62,7 @@ struct
     ;expr'
 
   (* standardise expr array *)
+  (* try to avoid multiple zero right hand size*)
   let trans tab htl= 
     (* find appropriate len for variables*)
     let len = ST.get_var_size htl  in
@@ -125,10 +126,11 @@ struct
         (* min ration, pivot index, current row index *)
         | (ratio, i, ic) -> 
           match FT.get_sign e_i with
-          (* make sure that the entering variable coefficient is
-          * strictly positive
-          *)
+          (* make sure that the right hand side / entering variable coefficient
+           * is strictly positive
+           *)
           | FT.Null -> (ratio, i, ic+1)
+          (*| FT.Neg -> (ratio, i, ic+1)*)
           | FT.Neg -> 
             (* if the constant is zero than we can also pick this negative
              * index as pivot
