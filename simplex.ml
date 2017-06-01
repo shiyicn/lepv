@@ -16,7 +16,7 @@ type count = int IntHashtbl.t
 module SimplexSolver =
 struct
   type t = SM.t * SM.m
-
+  
   (* expression standardisation
    * expr -> expr' with expr'.(0) as constant element
   *)
@@ -130,10 +130,11 @@ struct
            * is strictly positive
            *)
           | FT.Null -> (ratio, i, ic+1)
-          (*| FT.Neg -> (ratio, i, ic+1)*)
+          | FT.Neg -> (ratio, i, ic+1)
+          (*
           | FT.Neg -> 
             (* if the constant is zero than we can also pick this negative
-             * index as pivot
+             * index as pivot, we should avoid multiple null right hand side
              *)
             if (FT.get_sign (SM.get_elt_row expr 0)) = FT.Null then
               match FT.get_sign ratio with
@@ -142,6 +143,7 @@ struct
               | FT.Pos -> (FT.zero, ic, ic+1)
             else
               (ratio, i, ic+1)
+          *)
           | FT.Pos ->
             let const = SM.get_elt_row expr 0 in
             let ratio' = FT.(const / e_i) in

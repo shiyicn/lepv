@@ -7,15 +7,19 @@ module SM = Sparse_matrix
 module Deducer = Inv_deduce
 module Printer = Print
 
-let () = 
-    print_string "Construct the program.\n";
+let () = print_string "Type the txt file name: \n"
+
+let file = read_line ()
+
+let () =
+    Printf.printf "Construct the program for: %s\n" file;
     Printer.dividing_line Printer.length_defaut '#'
 
 (* Firstly construct a syntax tree *)
-let q = ST.read_prog "prog.txt"
+let q = ST.read_prog file
 let st = ST.cons_prog q
 
-let () = 
+let () =
     Printer.dividing_line Printer.length_defaut '#';
     print_string "\nConstructed program\n\n"
 
@@ -23,4 +27,7 @@ let () =
  * deducer stops when we cannot deduce from an
  * an invariant to another one
  *)
-let res = Deducer.deducer st
+let () = 
+try
+    ignore(Deducer.deducer st); print_string "Correct annotation.\n"
+with Deducer.DeductionFault -> print_string "Incorrect annotation.\n"

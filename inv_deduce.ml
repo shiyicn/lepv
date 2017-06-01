@@ -75,6 +75,7 @@ let get_start_end block =
     | ST.Node ([], inv') -> [], inv'
     | ST.Node ((inv0, instr)::tl, inv') -> inv0, inv'
 
+(* inv + instr -> inv : deduction *)
 let rec inv_deduce (inv : ST.inv) (instr : ST.instr) (inv' : ST.inv) vars =
     match instr with
     | ST.Aff (i, e) ->
@@ -133,7 +134,8 @@ let rec inv_deduce (inv : ST.inv) (instr : ST.instr) (inv' : ST.inv) vars =
         inv_to_inv ((reverse_expr e)::inv) inv2' vars &&
         inv_to_inv inv3' inv' vars &&
         block_deduce b2 vars
-    | ST.While (e, b) -> 
+    | ST.While (e, b) ->
+        print_string "Start a while loop section : \n"; 
         let inv2, inv3 = get_start_end b in
         inv_to_inv (e::inv) inv2 vars &&
         inv_to_inv ((reverse_expr e)::inv) inv' vars &&
@@ -141,7 +143,7 @@ let rec inv_deduce (inv : ST.inv) (instr : ST.instr) (inv' : ST.inv) vars =
         inv_to_inv ((reverse_expr e)::inv3) inv' vars &&
         (* procede block deduction *)
         block_deduce b vars
-
+        
 and block_deduce block vars = 
     match block with
     | ST.Empty -> true
