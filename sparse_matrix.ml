@@ -78,6 +78,7 @@ let find_neg (r : t) =
        (fun i a ->
           (* skip constant index 0 *)
           if i = 0 then ()
+          (* apply bland's rule, find the lowest index *)
           else
             match (FT.get_sign a) with
             | FT.Neg -> raise (FoundNegIndex i)

@@ -66,7 +66,7 @@ let inv_to_inv inv inv' vars =
         else raise DeductionFault
     in
     let res = List.fold_left aux true inv' in
-    print_string "Finished a inv to inv deduction";
+    print_string "Finished a inv to inv deduction\n";
     Printer.dividing_line Printer.length_defaut '#'; res
 
 let get_start_end block =
@@ -141,9 +141,9 @@ let rec inv_deduce (inv : ST.inv) (instr : ST.instr) (inv' : ST.inv) vars =
         inv_to_inv ((reverse_expr e)::inv) inv' vars &&
         inv_to_inv (e::inv3) inv2 vars &&
         inv_to_inv ((reverse_expr e)::inv3) inv' vars &&
-        (* procede block deduction *)
+        (* process block deduction *)
         block_deduce b vars
-        
+
 and block_deduce block vars = 
     match block with
     | ST.Empty -> true

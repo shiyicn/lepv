@@ -16,7 +16,7 @@ type count = int IntHashtbl.t
 module SimplexSolver =
 struct
   type t = SM.t * SM.m
-  
+
   (* expression standardisation
    * expr -> expr' with expr'.(0) as constant element
   *)
@@ -131,8 +131,7 @@ struct
            *)
           | FT.Null -> (ratio, i, ic+1)
           | FT.Neg -> (ratio, i, ic+1)
-          (*
-          | FT.Neg -> 
+          (*| FT.Neg -> 
             (* if the constant is zero than we can also pick this negative
              * index as pivot, we should avoid multiple null right hand side
              *)
@@ -142,13 +141,12 @@ struct
               | FT.Neg -> raise InvalidPivot
               | FT.Pos -> (FT.zero, ic, ic+1)
             else
-              (ratio, i, ic+1)
-          *)
+              (ratio, i, ic+1)*)
           | FT.Pos ->
             let const = SM.get_elt_row expr 0 in
             let ratio' = FT.(const / e_i) in
             match FT.get_sign FT.(ratio' - ratio) with
-            | FT.Neg|FT.Null -> (ratio', ic, ic+1)
+            | FT.Neg -> (ratio', ic, ic+1)
             | _ -> (ratio, i, ic+1) in
       let (_, i, _) = SM.fold_left aux (snd tab) (FT.max_frac, -1, 0) in
       (* for an entering variable, no pivots to choose, 

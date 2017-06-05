@@ -2,7 +2,7 @@ module ST = Tree.SyntaxTree
 module FT = Frac
 module SM = Sparse_matrix
 
-module Elimination = 
+module Elimination =
 struct
 
   type set = {leq : ST.inv; geq: ST.inv; other : ST.inv}
@@ -14,7 +14,7 @@ struct
     |Some of ST.instr | None
 
   (*check if an affectation is inversible*)
-  let is_inversible (instr : ST.instr) = 
+  let is_inversible (instr : ST.instr) =
     match instr with
     | ST.Aff (i, expr) ->
       if FT.get_sign (SM.get_elt_row expr i) = FT.Null then false else true
@@ -42,7 +42,7 @@ struct
          *)
         let () = SM.replace e i (-1, 1); SM.div_const e t in
         (* eliminate ancient xi with xi' in the affectation *)
-        let aux i e a = 
+        let aux i e a =
           (* firstly make a copy of e to avoid changing original e *)
           let e' = SM.copy e in
           let () = SM.times_const e' (SM.get_elt_row a i) in
@@ -57,8 +57,8 @@ struct
           let sign = FT.get_sign e in
           match sign with
           | FT.Null -> {leq = s.leq; geq = s.geq; other = expr::s.other}
-          | _ -> 
-            SM.div_const expr (FT.neg e); SM.remove expr i; 
+          | _ ->
+            SM.div_const expr (FT.neg e); SM.remove expr i;
             if sign = FT.Neg then
               {leq = s.leq; geq = expr::s.geq; other = s.other}
             else
@@ -71,7 +71,7 @@ struct
         let aux leq l e =
           List.fold_left
             (* make a copy of e, avoid destroying original e *)
-            (fun a b -> let e' = SM.copy e in (SM.sub e' b); e'::a) 
+            (fun a b -> let e' = SM.copy e in (SM.sub e' b); e'::a)
             l leq in
         let l' = List.fold_left (aux es.leq) [] es.geq in
         (l'@es.other), Some instr

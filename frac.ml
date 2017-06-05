@@ -13,8 +13,10 @@ let to_string a = (string_of_int (fst a))^"/"^(string_of_int (snd a))
 
 (* print a fraction array *)
 let print_array (a : t array) =
-  ignore(Array.map 
-           (fun a -> print_string ((to_string a)^"\t")) a);
+  ignore(
+    Array.map
+      (fun a -> print_string ((to_string a)^"\t")) a
+  );
   print_string "\n"
 
 (* a b -> greatest common denominator of a and b *)
