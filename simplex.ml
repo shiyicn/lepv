@@ -129,8 +129,7 @@ struct
           (* make sure that the right hand side / entering variable coefficient
            * is strictly positive
            *)
-          | FT.Null -> (ratio, i, ic+1)
-          | FT.Neg -> (ratio, i, ic+1)
+          | FT.Null| FT.Neg -> (ratio, i, ic+1)
           (*| FT.Neg -> 
             (* if the constant is zero than we can also pick this negative
              * index as pivot, we should avoid multiple null right hand side

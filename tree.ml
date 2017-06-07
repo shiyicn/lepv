@@ -38,9 +38,12 @@ struct
     | Var| As| Op| Pun| Com| Int
     | Num| And| Cond| Loop | Blank
     | Comma| Curl| Curr| Parl| Parr
-
-  type expr = SM.t
+  
+  type expr = 
+    | Cst of int
+    | Expr of expr * syntax * expr
   type inv = expr list
+  type ineq = expr * syntax * expr
 
   type instr =
     | Aff of int * expr
