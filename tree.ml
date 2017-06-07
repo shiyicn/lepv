@@ -39,8 +39,10 @@ struct
     | Num| And| Cond| Loop | Blank
     | Comma| Curl| Curr| Parl| Parr
   
+  (* Expression is  *)
   type expr = 
     | Cst of int
+    | Var of string
     | Expr of expr * syntax * expr
   type inv = expr list
   type ineq = expr * syntax * expr
