@@ -78,7 +78,10 @@ struct
     | _ ->
       if c <= '9' && c >= '0' then Num
       else if (c <= 'z' && c >= 'a') || (c >= 'A' && c <= 'Z') then Var
-      else (print_char c; raise IllegalCharacter)
+      else
+        begin
+          Printf.printf "Illegal character : %c\n" c; raise IllegalCharacter
+        end
 
   let identifier s = 
     match s with
@@ -201,6 +204,22 @@ struct
 
       ignore(aux q);(*print basic expression info *)print_string (SM.to_string ar);
       ar::l
+    
+  let visitor q l = 
+    if Queue.is_empty q then raise EmptyQueue
+    else if fst (Queue.peek q) = Curr then l
+    else
+      let rec aux q = 
+        match Queue.pop q with
+        | (Num, s) -> 
+          if Queue.is_empty q then raise EmptyQueue
+          else
+            match Queue.pop q with
+            | (Curr, _) -> Cst (int_of_string s) 
+            | (Op, s) -> 
+              match s with
+              | "+"| "-" -> Expr (Cst (int_of_string s), "+", aux q)
+              | "*"| "\\" -> 
 
   (*build invariant
     Ex : expr0 >= 0 & expr1 >= 0 & ... & exprl >= 0 -> expr list
